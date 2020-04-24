@@ -29,13 +29,7 @@ from lisp.ui.widgets import DBMeter
 
 class PercentageMeter(DBMeter):
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.scale = lambda db: db / abs(self.dBMin - self.dBMax)
-
     def plot(self, peaks, decay_peaks):
-        self.clipping = {}
-
         # Rescale: Sennheiser gives percentages, we need dB
         scale = (self.dBMax - self.dBMin) / 100
         new_peaks = [self.dBMin + peak * scale for peak in peaks]
@@ -46,6 +40,11 @@ class AFMeter(PercentageMeter):
 
     def __init__(self, parent=None):
         super().__init__(parent, dBMin=-50)
+        self.scale = lambda db: db / abs(self.dBMin - self.dBMax) + 1
+
+    def plot(self, *args):
+        self.clipping = {}
+        super().plot(*args)
 
     def reset(self):
         self.peaks = [self.dBMin]
@@ -61,6 +60,11 @@ class RFMeter(PercentageMeter):
                          dBMin=0,
                          dBMax=40,
                          clipping=40)
+        self.scale = lambda db: db / abs(self.dBMin - self.dBMax)
+
+    def plot(self, *args):
+        super().plot(*args)
+        self.clipping = {}
 
     def updatePixmap(self):
         """Prepare the colored rect to be used during paintEvent(s)"""
