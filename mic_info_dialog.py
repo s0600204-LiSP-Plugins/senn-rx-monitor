@@ -30,13 +30,14 @@ from .mic_info_widget import MicInfoWidget
 
 class MicInfoDialog(QDialog):
 
-    def __init__(self, **kwargs):
+    def __init__(self, listener, **kwargs):
         super().__init__(**kwargs)
 
         self.setWindowTitle('Mic Info')
         self.setLayout(QVBoxLayout())
 
+        self.listener = listener
+
         self.temp_widget = MicInfoWidget()
-        self.temp_widget.set_name('Annie')
-        self.temp_widget.set_freq('606.500')
         self.layout().addWidget(self.temp_widget)
+        self.listener.register('192.168.5.100', self.temp_widget.handle)

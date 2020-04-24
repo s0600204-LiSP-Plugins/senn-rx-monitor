@@ -26,6 +26,8 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QGridLayout, QLabel, QWidget
 
+from lisp.core.decorators import async_function
+
 from .meters import AFMeter, RFMeter
 
 
@@ -52,12 +54,62 @@ class MicInfoWidget(QWidget):
 
         self._rf_meter = RFMeter()
         self.layout().addWidget(self._rf_meter, 2, 0)
+        self._rf_levels = [[], []]
 
         self._af_meter = AFMeter()
         self.layout().addWidget(self._af_meter, 2, 1)
 
+        self.reset()
+
+    def clear(self):
+        self._rf_meter.reset()
+        self._af_meter.reset()
+        self._rf_levels = [[], []]
+
+    def handle(self, command, attributes):
+        handlers = {
+            # Responses to specific commands
+            'Name': lambda attrs: self._label_name.setText(attrs[0]),
+            'Frequency': self.set_freq,
+            #'Squelch'
+            #'AfOut'
+            #'Equalizer`
+            #'Mute'
+
+            # Cyclic Attributes.
+            # These are always received in the same order, and are listed in that order.
+            'RF1': self.parse_rf,
+            'RF2': self.parse_rf,
+            #'States'
+            'RF': self.set_rf,
+            'AF': self.set_af,
+            #'Bat'
+            #'Msg'
+            #'Config'
+        }
+        handlers.get(command, lambda _: None)(attributes)
+
+    def parse_rf(self, attrs):
+        self._rf_levels[0].append(int(attrs[0]))
+        self._rf_levels[1].append(int(attrs[1]))
+
+    def reset(self):
+        self.clear()
+        self._label_name.setText("-")
+        self._label_freq.setText("-")
+
+    @async_function
+    def set_af(self, attrs):
+        self._af_meter.plot([int(attrs[0])], [int(attrs[1])])
+
+    def set_freq(self, attrs):
+        freq = attrs[0]
+        self._label_freq.setText("{}.{} MHz".format(freq[0:3], freq[3:6]))
+
     def set_name(self, name):
         self._label_name.setText(name)
 
-    def set_freq(self, freq):
-        self._label_freq.setText(freq)
+    @async_function
+    def set_rf(self, _):
+        self._rf_meter.plot(*self._rf_levels)
+        self._rf_levels = [[], []]

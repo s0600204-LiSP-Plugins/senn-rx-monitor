@@ -59,7 +59,7 @@ class SennRxMonitor(Plugin):
 
     def _open_dialog(self):
         if not self._dialog:
-            self._dialog = MicInfoDialog()
+            self._dialog = MicInfoDialog(self._listener)
         self._dialog.open()
 
     def terminate(self):
