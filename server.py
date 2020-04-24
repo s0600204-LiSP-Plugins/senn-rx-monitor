@@ -91,12 +91,6 @@ class SennheiserUDPServer(UDPServer):
         return True
 
 
-class SennheiserUDPTalker:
-
-    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-
-    def __init__(self, ip):
-        self._ip = ip
-
-    def send(self, msg):
-        self.sock.sendto(bytes(msg + '\r', 'ascii'), (self._ip, PORT))
+def Transmit(ip, message):
+    with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
+        s.sendto(bytes(message + '\r', 'ascii'), (ip, PORT))

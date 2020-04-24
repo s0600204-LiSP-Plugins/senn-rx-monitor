@@ -33,8 +33,10 @@ from .meters import AFMeter, RFMeter
 
 class MicInfoWidget(QWidget):
 
-    def __init__(self):
+    def __init__(self, ip):
         super().__init__()
+
+        self._ip = ip
 
         self.setMinimumSize(100, 250)
         self.setMaximumWidth(150)
@@ -88,6 +90,9 @@ class MicInfoWidget(QWidget):
             #'Config'
         }
         handlers.get(command, lambda _: None)(attributes)
+
+    def ip(self):
+        return self._ip
 
     def parse_rf(self, attrs):
         self._rf_levels[0].append(int(attrs[0]))

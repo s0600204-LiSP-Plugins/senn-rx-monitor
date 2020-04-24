@@ -23,10 +23,14 @@
 # along with Linux Show Player.  If not, see <http://www.gnu.org/licenses/>.
 
 # pylint: disable=no-name-in-module
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtWidgets import QDialog, QHBoxLayout, QVBoxLayout
 
 from .mic_info_widget import MicInfoWidget
+from .server import Transmit
+
+UPDATE_DURATION = 1 # seconds
+UPDATE_FREQUENCY = 100 # milliseconds
 
 class MicInfoDialog(QDialog):
 
@@ -34,10 +38,31 @@ class MicInfoDialog(QDialog):
         super().__init__(**kwargs)
 
         self.setWindowTitle('Mic Info')
-        self.setLayout(QVBoxLayout())
+        self.setLayout(QHBoxLayout())
 
-        self.listener = listener
+        self._listener = listener
+        self._widgets = []
 
-        self.temp_widget = MicInfoWidget()
-        self.layout().addWidget(self.temp_widget)
-        self.listener.register('192.168.5.100', self.temp_widget.handle)
+        self._timer = QTimer(self)
+        self._timer.timeout.connect(self.make_push_request)
+        self._timer.setInterval(UPDATE_DURATION * 1000)
+
+        self.finished.connect(self._timer.stop)
+
+        self.append_widget('192.168.5.100')
+
+    def append_widget(self, ip):
+        new_widget = MicInfoWidget(ip)
+        self.layout().addWidget(new_widget)
+        self._listener.register(new_widget.ip(), new_widget.handle)
+        new_widget.config_request.connect(self.make_config_update_request)
+        self._widgets.append(new_widget)
+
+    def make_push_request(self):
+        for widget in self._widgets:
+            Transmit(widget.ip(), 'Push {} {} 0'.format(UPDATE_DURATION, UPDATE_FREQUENCY))
+
+    def open(self):
+        super().open()
+        self._timer.start()
+        self.make_push_request()
