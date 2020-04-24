@@ -62,6 +62,9 @@ class MicInfoDialog(QDialog):
         for widget in self._widgets:
             Transmit(widget.ip(), 'Push {} {} 0'.format(UPDATE_DURATION, UPDATE_FREQUENCY))
 
+    def make_config_update_request(self, ip):
+        Transmit(ip, 'Push 0 0 1')
+
     def open(self):
         super().open()
         self._timer.start()

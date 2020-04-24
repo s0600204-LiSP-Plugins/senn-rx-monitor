@@ -27,15 +27,19 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QGridLayout, QLabel, QWidget
 
 from lisp.core.decorators import async_function
+from lisp.core.signal import Signal
 
 from .meters import AFMeter, RFMeter
 
 
 class MicInfoWidget(QWidget):
 
+    config_request = Signal()
+
     def __init__(self, ip):
         super().__init__()
 
+        self._config_num = -1
         self._ip = ip
 
         self.setMinimumSize(100, 250)
@@ -63,6 +67,12 @@ class MicInfoWidget(QWidget):
 
         self.reset()
 
+    def check_config(self, attrs):
+        if attrs[0] == self._config_num:
+            return
+        self._config_num = attrs[0]
+        self.config_request.emit(self._ip)
+
     def clear(self):
         self._rf_meter.reset()
         self._af_meter.reset()
@@ -87,7 +97,7 @@ class MicInfoWidget(QWidget):
             'AF': self.set_af,
             #'Bat'
             #'Msg'
-            #'Config'
+            'Config': self.check_config,
         }
         handlers.get(command, lambda _: None)(attributes)
 
