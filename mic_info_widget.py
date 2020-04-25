@@ -29,6 +29,7 @@ from PyQt5.QtWidgets import QGridLayout, QLabel, QWidget
 from lisp.core.decorators import async_function
 from lisp.core.signal import Signal
 
+from .battery_indicator import BatteryIndicator
 from .meters import AFMeter, RFMeter
 
 
@@ -65,6 +66,9 @@ class MicInfoWidget(QWidget):
         self._af_meter = AFMeter()
         self.layout().addWidget(self._af_meter, 2, 1)
 
+        self._battery_meter = BatteryIndicator()
+        self.layout().addWidget(self._battery_meter, 3, 0, 1, 2)
+
         self.reset()
 
     def check_config(self, attrs):
@@ -95,7 +99,7 @@ class MicInfoWidget(QWidget):
             #'States'
             'RF': self.set_rf,
             'AF': self.set_af,
-            #'Bat'
+            'Bat': lambda attrs: self._battery_meter.setFilled(attrs[0]),
             #'Msg'
             'Config': self.check_config,
         }
@@ -112,6 +116,7 @@ class MicInfoWidget(QWidget):
         self.clear()
         self._label_name.setText("-")
         self._label_freq.setText("-")
+        self._battery_meter.setFilled("?")
 
     @async_function
     def set_af(self, attrs):
