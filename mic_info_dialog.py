@@ -24,7 +24,7 @@
 
 # pylint: disable=no-name-in-module
 from PyQt5.QtCore import Qt, QTimer
-from PyQt5.QtWidgets import QDialog, QHBoxLayout, QVBoxLayout
+from PyQt5.QtWidgets import QAction, QDialog, QDialogButtonBox, QFormLayout, QHBoxLayout, QLabel, QLineEdit, QMenu, QVBoxLayout
 
 from .mic_info_widget import MicInfoWidget
 from .server import Transmit
@@ -41,7 +41,9 @@ class MicInfoDialog(QDialog):
         self.setLayout(QHBoxLayout())
         self.layout().setAlignment(Qt.AlignLeft)
 
+        self._add_dialog = None
         self._listener = listener
+        self._menu = QMenu(self)
         self._widgets = []
 
         self._timer = QTimer(self)
@@ -52,12 +54,36 @@ class MicInfoDialog(QDialog):
 
         self.append_widget('192.168.5.100')
 
+    def _create_menu_action(self, caption, slot):
+        new_action = QAction(caption, parent=self._menu)
+        new_action.triggered.connect(slot)
+        self._menu.addAction(new_action)
+
+    def add_receiver(self):
+        if not self._add_dialog:
+            self._add_dialog = AddReceiverDialog(parent=self)
+
+        if self._add_dialog.exec() == QDialog.Accepted:
+            self.append_widget(self._add_dialog.ip())
+
     def append_widget(self, ip):
         new_widget = MicInfoWidget(ip)
         self.layout().addWidget(new_widget)
         self._listener.register(new_widget.ip(), new_widget.handle)
         new_widget.config_request.connect(self.make_config_update_request)
         self._widgets.append(new_widget)
+
+    def check_exists(self, ip):
+        for widget in self._widgets:
+            if widget.ip() == ip:
+                return True
+        return False
+
+    def contextMenuEvent(self, event):
+        self._menu.clear()
+        self._create_menu_action('Add Receiver', self.add_receiver)
+        self._menu.popup(event.globalPos())
+        super().contextMenuEvent(event)
 
     def make_push_request(self):
         for widget in self._widgets:
@@ -70,3 +96,44 @@ class MicInfoDialog(QDialog):
         super().open()
         self._timer.start()
         self.make_push_request()
+
+class AddReceiverDialog(QDialog):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.setWindowModality(Qt.WindowModal)
+        self.setWindowTitle('Add Receiver')
+        self.setLayout(QFormLayout())
+
+        self._label = QLabel()
+        self._label.setAlignment(Qt.AlignHCenter)
+        self._label.setText('Enter an IP address')
+        self.layout().addRow(self._label)
+
+        self._ip_text = QLineEdit()
+        self._ip_text.setInputMask('000.000.000.000')
+        self.layout().addRow('IP Address:', self._ip_text)
+
+        self._buttons = QDialogButtonBox(QDialogButtonBox.Save | QDialogButtonBox.Close)
+        self._buttons.accepted.connect(self.validate)
+        self._buttons.rejected.connect(self.reject)
+        self.layout().addRow(self._buttons)
+
+    def ip(self):
+        return self._ip_text.text()
+
+    def validate(self):
+        if not self._ip_text.hasAcceptableInput():
+            self._label.setText('Not a valid IP address')
+            return
+
+        text = self._ip_text.text()
+        for part in text.split('.'):
+            if not part or int(part) > 255:
+                self._label.setText('Not a valid IP address')
+                return
+
+        if self.parent().check_exists(text):
+            self._label.setText('Address already in use')
+            return
+
+        self.accept()
