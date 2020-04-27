@@ -39,6 +39,7 @@ class MicInfoDialog(QDialog):
 
         self.setWindowTitle('Mic Info')
         self.setLayout(QHBoxLayout())
+        self.layout().setAlignment(Qt.AlignLeft)
 
         self._listener = listener
         self._widgets = []

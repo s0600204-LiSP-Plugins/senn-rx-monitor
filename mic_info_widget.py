@@ -24,6 +24,7 @@
 
 # pylint: disable=no-name-in-module
 from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QColor, QPainter
 from PyQt5.QtWidgets import QGridLayout, QLabel, QWidget
 
 from lisp.core.decorators import async_function
@@ -43,12 +44,13 @@ class MicInfoWidget(QWidget):
         self._config_num = -1
         self._ip = ip
 
-        self.setMinimumSize(100, 250)
-        self.setMaximumWidth(150)
+        self._border_color = QColor(80, 80, 80)
+        self.setMinimumSize(120, 250)
+        self.setMaximumWidth(120)
 
         self.setLayout(QGridLayout())
-        self.layout().setContentsMargins(0, 0, 0, 0)
-        #self.layout().setHorizontalSpacing(self.layout().horizontalSpacing() * 1.25)
+        margin = self.layout().horizontalSpacing()
+        self.layout().setContentsMargins(margin, margin, margin, margin)
         self.layout().setRowStretch(2, 1)
 
         self._label_name = QLabel()
@@ -107,6 +109,14 @@ class MicInfoWidget(QWidget):
 
     def ip(self):
         return self._ip
+
+    def paintEvent(self, _):
+        # pylint: disable=invalid-name
+        painter = QPainter()
+        painter.begin(self)
+        painter.setPen(self._border_color)
+        painter.drawRect(0, 0, self.width() - 1, self.height() - 1)
+        painter.end()
 
     def parse_rf(self, attrs):
         self._rf_levels[0].append(int(attrs[0]))
