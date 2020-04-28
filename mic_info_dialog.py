@@ -23,7 +23,7 @@
 # along with Linux Show Player.  If not, see <http://www.gnu.org/licenses/>.
 
 # pylint: disable=no-name-in-module
-from PyQt5.QtCore import Qt, QTimer
+from PyQt5.QtCore import Qt, QSize, QTimer
 from PyQt5.QtWidgets import QAction, QDialog, QDialogButtonBox, QFormLayout, QHBoxLayout, QLabel, QLineEdit, QMenu, QVBoxLayout
 
 from lisp.plugins import get_plugin
@@ -43,9 +43,17 @@ class MicInfoDialog(QDialog):
         self.setLayout(QHBoxLayout())
         self.layout().setAlignment(Qt.AlignLeft)
 
+        # Set flags so we get the min & max buttons
+        # (and so they actually function)
+        flags = self.windowFlags()
+        flags ^= Qt.Dialog
+        flags |= Qt.WindowMinMaxButtonsHint
+        self.setWindowFlags(flags)
+
         self._add_dialog = None
         self._listener = listener
         self._menu = QMenu(self)
+        self._size_hint = QSize(640, 256)
         self._widgets = []
         self.mouse_over_widget = None
 
@@ -112,6 +120,9 @@ class MicInfoDialog(QDialog):
     def make_config_update_request(self, ip):
         Transmit(ip, 'Push 0 0 1')
 
+    def minimumSizeHint(self):
+        return self._size_hint
+
     def open(self):
         super().open()
         self._timer.start()
@@ -124,6 +135,9 @@ class MicInfoDialog(QDialog):
         self._widgets.remove(widget)
         get_plugin('SennRxMonitor').remove_rx(widget.ip())
         widget.deleteLater()
+
+    def sizeHint(self):
+        return self._size_hint
 
 class AddReceiverDialog(QDialog):
     def __init__(self, **kwargs):
