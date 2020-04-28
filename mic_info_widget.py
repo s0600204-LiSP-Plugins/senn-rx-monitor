@@ -84,6 +84,13 @@ class MicInfoWidget(QWidget):
         self._af_meter.reset()
         self._rf_levels = [[], []]
 
+    def contextMenuEvent(self, event):
+        self.parent().mouse_over_widget = self
+        self.parent().contextMenuEvent(event)
+
+    def delete_self(self):
+        self.parent().remove_widget(self)
+
     def handle(self, command, attributes):
         handlers = {
             # Responses to specific commands

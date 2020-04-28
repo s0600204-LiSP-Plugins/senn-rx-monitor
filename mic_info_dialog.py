@@ -45,6 +45,7 @@ class MicInfoDialog(QDialog):
         self._listener = listener
         self._menu = QMenu(self)
         self._widgets = []
+        self.mouse_over_widget = None
 
         self._timer = QTimer(self)
         self._timer.timeout.connect(self.make_push_request)
@@ -57,6 +58,14 @@ class MicInfoDialog(QDialog):
     def _create_menu_action(self, caption, slot):
         new_action = QAction(caption, parent=self._menu)
         new_action.triggered.connect(slot)
+        self._menu.addAction(new_action)
+
+    def _create_menu_subheader(self, caption):
+        new_action = QAction(caption, parent=self._menu)
+        new_action.setEnabled(False)
+        font = new_action.font()
+        font.setBold(True)
+        new_action.setFont(font)
         self._menu.addAction(new_action)
 
     def add_receiver(self):
@@ -81,9 +90,16 @@ class MicInfoDialog(QDialog):
 
     def contextMenuEvent(self, event):
         self._menu.clear()
+
+        if self.mouse_over_widget and isinstance(self.mouse_over_widget, MicInfoWidget):
+            self._create_menu_subheader(self.mouse_over_widget.ip())
+            self._create_menu_action('Remove Receiver', self.mouse_over_widget.delete_self)
+            self._menu.addSeparator()
+
         self._create_menu_action('Add Receiver', self.add_receiver)
         self._menu.popup(event.globalPos())
-        super().contextMenuEvent(event)
+
+        self.mouse_over_widget = None
 
     def make_push_request(self):
         for widget in self._widgets:
@@ -96,6 +112,13 @@ class MicInfoDialog(QDialog):
         super().open()
         self._timer.start()
         self.make_push_request()
+
+    def remove_widget(self, widget):
+        self._listener.deregister(widget.ip())
+        widget.config_request.disconnect()
+        self.layout().removeWidget(widget)
+        self._widgets.remove(widget)
+        widget.deleteLater()
 
 class AddReceiverDialog(QDialog):
     def __init__(self, **kwargs):
