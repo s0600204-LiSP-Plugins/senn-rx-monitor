@@ -24,11 +24,12 @@
 
 # pylint: disable=no-name-in-module
 from PyQt5.QtCore import Qt, QSize, QTimer
-from PyQt5.QtWidgets import QAction, QDialog, QDialogButtonBox, QFormLayout, QHBoxLayout, QLabel, QLineEdit, QMenu, QVBoxLayout
+from PyQt5.QtWidgets import QAction, QDialog, QDialogButtonBox, QFormLayout, QLabel, QLineEdit, QMenu
 
 from lisp.plugins import get_plugin
 
 from .mic_info_widget import MicInfoWidget
+from .qflowlayout import QFlowLayout
 from .server import Transmit
 
 UPDATE_DURATION = 1 # seconds
@@ -40,8 +41,7 @@ class MicInfoDialog(QDialog):
         super().__init__(**kwargs)
 
         self.setWindowTitle('Mic Info')
-        self.setLayout(QHBoxLayout())
-        self.layout().setAlignment(Qt.AlignLeft)
+        self.setLayout(QFlowLayout())
 
         # Set flags so we get the min & max buttons
         # (and so they actually function)
@@ -53,7 +53,7 @@ class MicInfoDialog(QDialog):
         self._add_dialog = None
         self._listener = listener
         self._menu = QMenu(self)
-        self._size_hint = QSize(640, 256)
+        self._size_hint = QSize(1025, 256)
         self._widgets = []
         self.mouse_over_widget = None
 

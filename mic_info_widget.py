@@ -45,7 +45,7 @@ class MicInfoWidget(QWidget):
         self._ip = ip
 
         self._border_color = QColor(80, 80, 80)
-        self.setMinimumSize(120, 250)
+        self.setMinimumSize(120, 300)
         self.setMaximumWidth(120)
 
         self.setLayout(QGridLayout())

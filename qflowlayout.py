@@ -111,10 +111,16 @@ class QFlowLayout(QLayout):
     def minimumSize(self):
         '''Returns the minimum acceptable size of this layout'''
         size = QSize()
+        margins = self.contentsMargins()
+
+        if self.parent():
+            parent_size = QSize(self.parent().minimumSizeHint())
+            parent_size -= QSize(margins.left() + margins.right(), margins.top() + margins.bottom())
+            size = size.expandedTo(parent_size)
+
         for item in self._itemList:
             size = size.expandedTo(item.minimumSize())
 
-        margins = self.contentsMargins()
         size += QSize(margins.left() + margins.right(), margins.top() + margins.bottom())
         return size
 
