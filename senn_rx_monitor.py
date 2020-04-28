@@ -28,13 +28,17 @@ import logging
 from PyQt5.QtWidgets import QAction
 
 # pylint: disable=import-error
+from lisp.core.has_properties import Property
 from lisp.core.plugin import Plugin
+from lisp.core.session import Session
 from lisp.ui.ui_utils import translate
 
 from .mic_info_dialog import MicInfoDialog
 from .server import SennheiserUDPListener
 
 logger = logging.getLogger(__name__) # pylint: disable=invalid-name
+
+Session.senn_rx = Property(default=[])
 
 class SennRxMonitor(Plugin):
     """Monitoring of Sennheiser Radio Microphone Receievers"""
@@ -54,13 +58,26 @@ class SennRxMonitor(Plugin):
         self._menu_action.triggered.connect(self._open_dialog)
         self.app.window.menuTools.addAction(self._menu_action)
 
+    def append_rx(self, ip):
+        if ip not in self.app.session.senn_rx:
+            self.app.session.senn_rx.append(ip)
+
     def finalize(self):
         self.terminate()
 
     def _open_dialog(self):
         if not self._dialog:
             self._dialog = MicInfoDialog(self._listener)
+
+        if not self._dialog.count():
+            for ip in self.app.session.senn_rx:
+                self._dialog.append_widget(ip)
+
         self._dialog.open()
+
+    def remove_rx(self, ip):
+        if ip in self.app.session.senn_rx:
+            self.app.session.senn_rx.remove(ip)
 
     def terminate(self):
         self._listener.stop()

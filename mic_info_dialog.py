@@ -26,6 +26,8 @@
 from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtWidgets import QAction, QDialog, QDialogButtonBox, QFormLayout, QHBoxLayout, QLabel, QLineEdit, QMenu, QVBoxLayout
 
+from lisp.plugins import get_plugin
+
 from .mic_info_widget import MicInfoWidget
 from .server import Transmit
 
@@ -53,8 +55,6 @@ class MicInfoDialog(QDialog):
 
         self.finished.connect(self._timer.stop)
 
-        self.append_widget('192.168.5.100')
-
     def _create_menu_action(self, caption, slot):
         new_action = QAction(caption, parent=self._menu)
         new_action.triggered.connect(slot)
@@ -81,12 +81,16 @@ class MicInfoDialog(QDialog):
         self._listener.register(new_widget.ip(), new_widget.handle)
         new_widget.config_request.connect(self.make_config_update_request)
         self._widgets.append(new_widget)
+        get_plugin('SennRxMonitor').append_rx(ip)
 
     def check_exists(self, ip):
         for widget in self._widgets:
             if widget.ip() == ip:
                 return True
         return False
+
+    def count(self):
+        return len(self._widgets)
 
     def contextMenuEvent(self, event):
         self._menu.clear()
@@ -118,6 +122,7 @@ class MicInfoDialog(QDialog):
         widget.config_request.disconnect()
         self.layout().removeWidget(widget)
         self._widgets.remove(widget)
+        get_plugin('SennRxMonitor').remove_rx(widget.ip())
         widget.deleteLater()
 
 class AddReceiverDialog(QDialog):
