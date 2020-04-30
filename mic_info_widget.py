@@ -31,6 +31,7 @@ from lisp.core.decorators import async_function
 from lisp.core.signal import Signal
 
 from .battery_indicator import BatteryIndicator
+from .status_indicator import StatusIndicator
 from .meters import AFMeter, RFMeter
 
 
@@ -71,6 +72,9 @@ class MicInfoWidget(QWidget):
         self._battery_meter = BatteryIndicator()
         self.layout().addWidget(self._battery_meter, 3, 0, 1, 2)
 
+        self._status_indicator = StatusIndicator()
+        self.layout().addWidget(self._status_indicator, 4, 0, 1, 2)
+
         self.reset()
 
     def check_config(self, attrs):
@@ -109,7 +113,7 @@ class MicInfoWidget(QWidget):
             'RF': self.set_rf,
             'AF': self.set_af,
             'Bat': lambda attrs: self._battery_meter.setFilled(attrs[0]),
-            #'Msg'
+            'Msg': lambda attrs: self._status_indicator.setStatus(attrs),
             'Config': self.check_config,
         }
         handlers.get(command, lambda _: None)(attributes)
