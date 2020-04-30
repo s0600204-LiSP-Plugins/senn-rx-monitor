@@ -98,7 +98,7 @@ class MicInfoWidget(QWidget):
     def handle(self, command, attributes):
         handlers = {
             # Responses to specific commands
-            'Name': lambda attrs: self._label_name.setText(attrs[0]),
+            'Name': lambda attrs: self._label_name.setText(' '.join(attrs)),
             'Frequency': self.set_freq,
             'Squelch': lambda attrs: self._rf_meter.setSquelch(int(attrs[0])),
             #'AfOut'
