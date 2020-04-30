@@ -61,10 +61,15 @@ class RFMeter(PercentageMeter):
                          dBMax=40,
                          clipping=40)
         self.scale = lambda db: db / abs(self.dBMin - self.dBMax)
+        self.squelch = 1
 
     def plot(self, *args):
         super().plot(*args)
         self.clipping = {}
+
+    def setSquelch(self, squelch):
+        self.squelch = squelch
+        self.updatePixmap()
 
     def updatePixmap(self):
         """Prepare the colored rect to be used during paintEvent(s)"""
@@ -72,10 +77,13 @@ class RFMeter(PercentageMeter):
         h = self.height()
 
         dbRange = abs(self.dBMin - self.dBMax)
+        squelch = 1 - self.squelch / dbRange
 
         gradient = QLinearGradient(0, 0, 0, h)
         gradient.setColorAt(0, QColor(0, 220, 0))
-        gradient.setColorAt(1, QColor(0, 160, 0))
+        gradient.setColorAt(squelch, QColor(0, 160, 0))
+        gradient.setColorAt(min(squelch + 0.01, 1), QColor(255, 220, 0))
+        gradient.setColorAt(1, QColor(255, 220, 0))
 
         self._pixmap = QPixmap(w, h)
         QPainter(self._pixmap).fillRect(0, 0, w, h, gradient)

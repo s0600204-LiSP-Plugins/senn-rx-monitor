@@ -100,7 +100,7 @@ class MicInfoWidget(QWidget):
             # Responses to specific commands
             'Name': lambda attrs: self._label_name.setText(attrs[0]),
             'Frequency': self.set_freq,
-            #'Squelch'
+            'Squelch': lambda attrs: self._rf_meter.setSquelch(int(attrs[0])),
             #'AfOut'
             #'Equalizer`
             #'Mute'
