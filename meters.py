@@ -39,7 +39,7 @@ class PercentageMeter(DBMeter):
 class AFMeter(PercentageMeter):
 
     def __init__(self, parent=None):
-        super().__init__(parent, dBMin=-50)
+        super().__init__(parent, dBMin=-50, unit='dB')
         self.scale = lambda db: db / abs(self.dBMin - self.dBMax) + 1
 
     def plot(self, *args):
@@ -59,7 +59,8 @@ class RFMeter(PercentageMeter):
         super().__init__(parent,
                          dBMin=0,
                          dBMax=40,
-                         clipping=40)
+                         clipping=40,
+                         unit='dBµV')
         self.scale = lambda db: db / abs(self.dBMin - self.dBMax)
         self.squelch = 1
 
