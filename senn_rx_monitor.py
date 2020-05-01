@@ -75,6 +75,10 @@ class SennRxMonitor(Plugin):
 
         self._dialog.open()
 
+    def move_rx(self, ip, new_index):
+        self.remove_rx(ip)
+        self.app.session.senn_rx.insert(new_index, ip)
+
     def remove_rx(self, ip):
         if ip in self.app.session.senn_rx:
             self.app.session.senn_rx.remove(ip)

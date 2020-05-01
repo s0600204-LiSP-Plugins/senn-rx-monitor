@@ -31,6 +31,7 @@ from lisp.core.decorators import async_function
 from lisp.core.signal import Signal
 
 from .battery_indicator import BatteryIndicator
+from .drag_widget import DragWidget
 from .status_indicator import StatusIndicator
 from .meters import AFMeter, RFMeter
 
@@ -52,28 +53,31 @@ class MicInfoWidget(QWidget):
         self.setLayout(QGridLayout())
         margin = self.layout().horizontalSpacing()
         self.layout().setContentsMargins(margin, margin, margin, margin)
-        self.layout().setRowStretch(2, 1)
+        self.layout().setRowStretch(3, 1)
+
+        self._drag_widget = DragWidget()
+        self.layout().addWidget(self._drag_widget, 0, 0, 1, 2)
 
         self._label_name = QLabel()
         self._label_name.setAlignment(Qt.AlignCenter)
-        self.layout().addWidget(self._label_name, 0, 0, 1, 2)
+        self.layout().addWidget(self._label_name, 1, 0, 1, 2)
 
         self._label_freq = QLabel()
         self._label_freq.setAlignment(Qt.AlignCenter)
-        self.layout().addWidget(self._label_freq, 1, 0, 1, 2)
+        self.layout().addWidget(self._label_freq, 2, 0, 1, 2)
 
         self._rf_meter = RFMeter()
-        self.layout().addWidget(self._rf_meter, 2, 0)
+        self.layout().addWidget(self._rf_meter, 3, 0)
         self._rf_levels = [[], []]
 
         self._af_meter = AFMeter()
-        self.layout().addWidget(self._af_meter, 2, 1)
+        self.layout().addWidget(self._af_meter, 3, 1)
 
         self._battery_meter = BatteryIndicator()
-        self.layout().addWidget(self._battery_meter, 3, 0, 1, 2)
+        self.layout().addWidget(self._battery_meter, 4, 0, 1, 2)
 
         self._status_indicator = StatusIndicator()
-        self.layout().addWidget(self._status_indicator, 4, 0, 1, 2)
+        self.layout().addWidget(self._status_indicator, 5, 0, 1, 2)
 
         self.reset()
 

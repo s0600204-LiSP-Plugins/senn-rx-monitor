@@ -127,6 +127,17 @@ class QFlowLayout(QLayout):
         size += QSize(margins.left() + margins.right(), margins.top() + margins.bottom())
         return size
 
+    def moveWidget(self,
+                   widget,
+                   target_index: int):
+        item_index = self.indexOf(widget)
+        target_index = min(target_index, self.count())
+        if item_index > target_index:
+            target_index += 1
+        self._itemList.insert(target_index, self.takeAt(item_index))
+        self.invalidate()
+        return target_index
+
     def setGeometry(self, rect: QRect):
         '''Calculate and layout the items'''
         super().setGeometry(rect)

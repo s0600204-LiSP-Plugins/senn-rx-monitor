@@ -23,11 +23,13 @@
 # along with Linux Show Player.  If not, see <http://www.gnu.org/licenses/>.
 
 # pylint: disable=no-name-in-module
-from PyQt5.QtCore import Qt, QSize, QTimer
+from PyQt5.QtCore import QLine, Qt, QSize, QTimer
+from PyQt5.QtGui import QColor, QPainter
 from PyQt5.QtWidgets import QAction, QDialog, QDialogButtonBox, QFormLayout, QLabel, QLineEdit, QMenu
 
 from lisp.plugins import get_plugin
 
+from .drag_widget import DRAG_MAGIC
 from .mic_info_widget import MicInfoWidget
 from .qflowlayout import QFlowLayout
 from .server import Transmit
@@ -59,6 +61,11 @@ class MicInfoDialog(QDialog):
         self._timer = QTimer(self)
         self._timer.timeout.connect(self.make_push_request)
         self._timer.setInterval(UPDATE_DURATION * 1000)
+
+        self.setAcceptDrops(True)
+        self._dragDropIndex = None
+        self._dragDropLine = None
+        self._dragDropLineColor = QColor(160, 160, 160)
 
         self.finished.connect(self._timer.stop)
 
@@ -111,6 +118,38 @@ class MicInfoDialog(QDialog):
 
         self.mouse_over_widget = None
 
+    def dragEnterEvent(self, event):
+        if event.mimeData().text() == DRAG_MAGIC:
+            event.accept()
+        else:
+            event.ignore()
+
+    def dragMoveEvent(self, event):
+        pos = event.pos()
+        child = self.childAt(pos)
+        if not child:
+            return
+
+        if not isinstance(child, MicInfoWidget):
+            child = child.parent()
+
+        self._dragDropIndex = self.layout().indexOf(child)
+        rect = child.rect()
+        line = QLine(
+            child.mapToParent(rect.topRight()),
+            child.mapToParent(rect.bottomRight())
+        )
+        line.translate(self.layout().horizontalSpacing() / 3 * 2, 0)
+        self._dragDropLine = line
+        self.update()
+
+    def dropEvent(self, event):
+        dropped = event.source().parent()
+        new_index = self.layout().moveWidget(dropped, self._dragDropIndex)
+        self._dragDropLine = None
+        self._dragDropIndex = None
+        get_plugin('SennRxMonitor').move_rx(dropped.ip(), new_index)
+
     def make_push_request(self):
         for item in self.layout().children():
             Transmit(item.widget().ip(), 'Push {} {} 0'.format(UPDATE_DURATION, UPDATE_FREQUENCY))
@@ -125,6 +164,14 @@ class MicInfoDialog(QDialog):
         super().open()
         self._timer.start()
         self.make_push_request()
+
+    def paintEvent(self, _):
+        if self._dragDropLine:
+            painter = QPainter()
+            painter.begin(self)
+            painter.setPen(self._dragDropLineColor)
+            painter.drawLine(self._dragDropLine)
+            painter.end()
 
     def remove_widget(self, widget):
         self._listener.deregister(widget.ip())
