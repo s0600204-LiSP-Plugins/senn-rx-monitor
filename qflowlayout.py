@@ -76,6 +76,9 @@ class QFlowLayout(QLayout):
         '''Add an item to the Layout'''
         self._itemList.append(item)
 
+    def children(self):
+        return self._itemList
+
     def count(self):
         '''Number of items in this layout'''
         return len(self._itemList)

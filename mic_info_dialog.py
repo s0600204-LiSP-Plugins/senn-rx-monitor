@@ -54,7 +54,6 @@ class MicInfoDialog(QDialog):
         self._listener = listener
         self._menu = QMenu(self)
         self._size_hint = QSize(1025, 256)
-        self._widgets = []
         self.mouse_over_widget = None
 
         self._timer = QTimer(self)
@@ -88,17 +87,16 @@ class MicInfoDialog(QDialog):
         self.layout().addWidget(new_widget)
         self._listener.register(new_widget.ip(), new_widget.handle)
         new_widget.config_request.connect(self.make_config_update_request)
-        self._widgets.append(new_widget)
         get_plugin('SennRxMonitor').append_rx(ip)
 
     def check_exists(self, ip):
-        for widget in self._widgets:
-            if widget.ip() == ip:
+        for item in self.layout().children():
+            if item.widget().ip() == ip:
                 return True
         return False
 
     def count(self):
-        return len(self._widgets)
+        return self.layout().count()
 
     def contextMenuEvent(self, event):
         self._menu.clear()
@@ -114,8 +112,8 @@ class MicInfoDialog(QDialog):
         self.mouse_over_widget = None
 
     def make_push_request(self):
-        for widget in self._widgets:
-            Transmit(widget.ip(), 'Push {} {} 0'.format(UPDATE_DURATION, UPDATE_FREQUENCY))
+        for item in self.layout().children():
+            Transmit(item.widget().ip(), 'Push {} {} 0'.format(UPDATE_DURATION, UPDATE_FREQUENCY))
 
     def make_config_update_request(self, ip):
         Transmit(ip, 'Push 0 0 1')
@@ -132,7 +130,6 @@ class MicInfoDialog(QDialog):
         self._listener.deregister(widget.ip())
         widget.config_request.disconnect()
         self.layout().removeWidget(widget)
-        self._widgets.remove(widget)
         get_plugin('SennRxMonitor').remove_rx(widget.ip())
         widget.deleteLater()
 
