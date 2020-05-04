@@ -180,6 +180,12 @@ class MicInfoDialog(QDialog):
         get_plugin('SennRxMonitor').remove_rx(widget.ip())
         widget.deleteLater()
 
+    def reset(self):
+        item = self.layout().takeAt(0)
+        while item:
+            self.remove_widget(item.widget())
+            item = self.layout().takeAt(0)
+
     def sizeHint(self):
         return self._size_hint
 

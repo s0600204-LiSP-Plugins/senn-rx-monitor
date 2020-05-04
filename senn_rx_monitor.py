@@ -58,6 +58,8 @@ class SennRxMonitor(Plugin):
         self._menu_action.triggered.connect(self._open_dialog)
         self.app.window.menuTools.addAction(self._menu_action)
 
+        self.app.session_created.connect(self.reset)
+
     def append_rx(self, ip):
         if ip not in self.app.session.senn_rx:
             self.app.session.senn_rx.append(ip)
@@ -82,6 +84,11 @@ class SennRxMonitor(Plugin):
     def remove_rx(self, ip):
         if ip in self.app.session.senn_rx:
             self.app.session.senn_rx.remove(ip)
+
+    def reset(self):
+        if self._dialog:
+            self._dialog.reset()
+            self._dialog.close()
 
     def terminate(self):
         self._listener.stop()
