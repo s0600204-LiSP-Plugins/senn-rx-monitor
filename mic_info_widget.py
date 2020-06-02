@@ -143,7 +143,6 @@ class MicInfoWidget(QWidget):
         self._label_freq.setText("-")
         self._battery_meter.setFilled("?")
 
-    @async_function
     def set_af(self, attrs):
         self._af_meter.plot([int(attrs[0])], [int(attrs[1])])
 
@@ -154,7 +153,6 @@ class MicInfoWidget(QWidget):
     def set_name(self, name):
         self._label_name.setText(name)
 
-    @async_function
     def set_rf(self, _):
         self._rf_meter.plot(*self._rf_levels)
         self._rf_levels = [[], []]

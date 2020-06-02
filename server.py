@@ -27,6 +27,7 @@ import socket
 from socketserver import BaseRequestHandler, UDPServer
 from threading import Thread
 
+from lisp.core.signal import Connection, Signal
 from lisp.core.util import get_lan_ip
 
 logger = logging.getLogger(__name__)
@@ -75,19 +76,23 @@ class SennheiserUDPServer(UDPServer):
             logger.warning("Unable to deregister device on {}, due to not being registered".format(ip))
             return False
 
+        self._registered[ip].disconnect()
         del self._registered[ip]
         return True
 
     def dispatch(self, source, command, attributes=[]):
         if source in self._registered:
-            self._registered[source](command, attributes)
+            self._registered[source].emit(command, attributes)
 
     def register(self, ip, callback):
         if ip in self._registered:
             logging.warning("Unable to register device on {}, due to a device already being registered at this address".format(ip))
             return False
 
-        self._registered[ip] = callback
+        # Call the callback via a Queued signal so as to run the callback on the main event thread.
+        signal = Signal()
+        signal.connect(callback, Connection.QtQueued)
+        self._registered[ip] = signal
         return True
 
 
