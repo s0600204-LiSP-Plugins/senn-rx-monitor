@@ -31,9 +31,11 @@ from PyQt5.QtWidgets import QAction
 from lisp.core.has_properties import Property
 from lisp.core.plugin import Plugin
 from lisp.core.session import Session
+from lisp.layout import register_layout
 from lisp.ui.ui_utils import translate
 
 from .mic_info_dialog import MicInfoDialog
+from .mic_info_layout import MicInfoLayout
 from .server import SennheiserUDPListener
 
 logger = logging.getLogger(__name__) # pylint: disable=invalid-name
@@ -53,10 +55,11 @@ class SennRxMonitor(Plugin):
         self._listener = SennheiserUDPListener()
         self._listener.start()
 
+        MicInfoLayout.Config = SennRxMonitor.Config
+        register_layout(MicInfoLayout)
+
         self._dialog = None
         self._menu_action = QAction(translate('senn_rx_monitor', 'Radio Microphone Rx Status'), self.app.window)
-        self._menu_action.triggered.connect(self._open_dialog)
-        self.app.window.menuTools.addAction(self._menu_action)
 
         self.app.session_created.connect(self.reset)
 
@@ -77,6 +80,33 @@ class SennRxMonitor(Plugin):
 
         self._dialog.open()
 
+    def _pre_session_deinitialisation(self, _):
+        '''Called when session is being de-init'd.'''
+        if isinstance(self.app.layout, MicInfoLayout):
+            # Restore the "Edit" menu
+            self.app.window.menubar.insertMenu(
+                self.app.window.menuLayout.menuAction(),
+                self.app.window.menuEdit
+            )
+        else:
+            self.app.window.menuTools.removeAction(self._menu_action)
+
+    def _on_session_initialised(self, _):
+        """Post-session-initialisation init.
+
+        Called after the plugin session-configuration have been set, but before cues have
+        been restored (in the case of loading from file).
+        """
+        if isinstance(self.app.layout, MicInfoLayout):
+            # Hide the "Edit" menu
+            # This prevents the user from adding cues
+            self.app.window.menubar.removeAction(
+                self.app.window.menuEdit.menuAction()
+            )
+        else:
+            self._menu_action.triggered.connect(self._open_dialog)
+            self.app.window.menuTools.addAction(self._menu_action)
+
     def move_rx(self, ip, new_index):
         self.remove_rx(ip)
         self.app.session.senn_rx.insert(new_index, ip)
@@ -84,6 +114,9 @@ class SennRxMonitor(Plugin):
     def remove_rx(self, ip):
         if ip in self.app.session.senn_rx:
             self.app.session.senn_rx.remove(ip)
+
+    def listener(self):
+        return self._listener
 
     def reset(self):
         if self._dialog:
