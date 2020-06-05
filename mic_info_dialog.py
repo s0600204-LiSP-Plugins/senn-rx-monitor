@@ -23,19 +23,10 @@
 # along with Linux Show Player.  If not, see <http://www.gnu.org/licenses/>.
 
 # pylint: disable=no-name-in-module
-from PyQt5.QtCore import QLine, Qt, QSize, QTimer
-from PyQt5.QtGui import QColor, QPainter
-from PyQt5.QtWidgets import QAction, QDialog, QDialogButtonBox, QFormLayout, QLabel, QLineEdit, QMenu
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QDialog, QSizePolicy, QVBoxLayout
 
-from lisp.plugins import get_plugin
-
-from .drag_widget import DRAG_MAGIC
-from .mic_info_widget import MicInfoWidget
-from .qflowlayout import QFlowLayout
-from .server import Transmit
-
-UPDATE_DURATION = 1 # seconds
-UPDATE_FREQUENCY = 100 # milliseconds
+from .mic_info_widget_container import MicInfoWidgetContainer
 
 class MicInfoDialog(QDialog):
 
@@ -43,7 +34,8 @@ class MicInfoDialog(QDialog):
         super().__init__(**kwargs)
 
         self.setWindowTitle('Mic Info')
-        self.setLayout(QFlowLayout())
+        self.setLayout(QVBoxLayout())
+        self.layout().setContentsMargins(0, 0, 0, 0)
 
         # Set flags so we get the min & max buttons
         # (and so they actually function)
@@ -52,180 +44,23 @@ class MicInfoDialog(QDialog):
         flags |= Qt.WindowMinMaxButtonsHint
         self.setWindowFlags(flags)
 
-        self._add_dialog = None
-        self._listener = listener
-        self._menu = QMenu(self)
-        self._size_hint = QSize(1025, 256)
-        self.mouse_over_widget = None
-
-        self._timer = QTimer(self)
-        self._timer.timeout.connect(self.make_push_request)
-        self._timer.setInterval(UPDATE_DURATION * 1000)
-
-        self.setAcceptDrops(True)
-        self._dragDropIndex = None
-        self._dragDropLine = None
-        self._dragDropLineColor = QColor(160, 160, 160)
-
-        self.finished.connect(self._timer.stop)
-
-    def _create_menu_action(self, caption, slot):
-        new_action = QAction(caption, parent=self._menu)
-        new_action.triggered.connect(slot)
-        self._menu.addAction(new_action)
-
-    def _create_menu_subheader(self, caption):
-        new_action = QAction(caption, parent=self._menu)
-        new_action.setEnabled(False)
-        font = new_action.font()
-        font.setBold(True)
-        new_action.setFont(font)
-        self._menu.addAction(new_action)
-
-    def add_receiver(self):
-        if not self._add_dialog:
-            self._add_dialog = AddReceiverDialog(parent=self)
-
-        if self._add_dialog.exec() == QDialog.Accepted:
-            self.append_widget(self._add_dialog.ip())
+        self._container = MicInfoWidgetContainer(listener)
+        self.finished.connect(self._container.stop_timers)
+        self._container.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
+        self.layout().addWidget(self._container)
 
     def append_widget(self, ip):
-        new_widget = MicInfoWidget(ip)
-        self.layout().addWidget(new_widget)
-        self._listener.register(new_widget.ip(), new_widget.handle)
-        new_widget.config_request.connect(self.make_config_update_request)
-        get_plugin('SennRxMonitor').append_rx(ip)
-
-    def check_exists(self, ip):
-        for item in self.layout().children():
-            if item.widget().ip() == ip:
-                return True
-        return False
+        self._container.append_widget(ip)
 
     def count(self):
-        return self.layout().count()
-
-    def contextMenuEvent(self, event):
-        self._menu.clear()
-
-        if self.mouse_over_widget and isinstance(self.mouse_over_widget, MicInfoWidget):
-            self._create_menu_subheader(self.mouse_over_widget.ip())
-            self._create_menu_action('Remove Receiver', self.mouse_over_widget.delete_self)
-            self._menu.addSeparator()
-
-        self._create_menu_action('Add Receiver', self.add_receiver)
-        self._menu.popup(event.globalPos())
-
-        self.mouse_over_widget = None
-
-    def dragEnterEvent(self, event):
-        if event.mimeData().text() == DRAG_MAGIC:
-            event.accept()
-        else:
-            event.ignore()
-
-    def dragMoveEvent(self, event):
-        pos = event.pos()
-        child = self.childAt(pos)
-        if not child:
-            return
-
-        if not isinstance(child, MicInfoWidget):
-            child = child.parent()
-
-        self._dragDropIndex = self.layout().indexOf(child)
-        rect = child.rect()
-        line = QLine(
-            child.mapToParent(rect.topRight()),
-            child.mapToParent(rect.bottomRight())
-        )
-        line.translate(self.layout().horizontalSpacing() / 3 * 2, 0)
-        self._dragDropLine = line
-        self.update()
-
-    def dropEvent(self, event):
-        dropped = event.source().parent()
-        new_index = self.layout().moveWidget(dropped, self._dragDropIndex)
-        self._dragDropLine = None
-        self._dragDropIndex = None
-        get_plugin('SennRxMonitor').move_rx(dropped.ip(), new_index)
-
-    def make_push_request(self):
-        for item in self.layout().children():
-            Transmit(item.widget().ip(), 'Push {} {} 0'.format(UPDATE_DURATION, UPDATE_FREQUENCY))
-
-    def make_config_update_request(self, ip):
-        Transmit(ip, 'Push 0 0 1')
+        return self._container.count()
 
     def minimumSizeHint(self):
-        return self._size_hint
+        return self._container.minimumSizeHint()
 
     def open(self):
         super().open()
-        self._timer.start()
-        self.make_push_request()
-
-    def paintEvent(self, _):
-        if self._dragDropLine:
-            painter = QPainter()
-            painter.begin(self)
-            painter.setPen(self._dragDropLineColor)
-            painter.drawLine(self._dragDropLine)
-            painter.end()
-
-    def remove_widget(self, widget):
-        self._listener.deregister(widget.ip())
-        widget.config_request.disconnect()
-        self.layout().removeWidget(widget)
-        get_plugin('SennRxMonitor').remove_rx(widget.ip())
-        widget.deleteLater()
+        self._container.start_timers()
 
     def reset(self):
-        item = self.layout().takeAt(0)
-        while item:
-            self.remove_widget(item.widget())
-            item = self.layout().takeAt(0)
-
-    def sizeHint(self):
-        return self._size_hint
-
-class AddReceiverDialog(QDialog):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.setWindowModality(Qt.WindowModal)
-        self.setWindowTitle('Add Receiver')
-        self.setLayout(QFormLayout())
-
-        self._label = QLabel()
-        self._label.setAlignment(Qt.AlignHCenter)
-        self._label.setText('Enter an IP address')
-        self.layout().addRow(self._label)
-
-        self._ip_text = QLineEdit()
-        self._ip_text.setInputMask('000.000.000.000')
-        self.layout().addRow('IP Address:', self._ip_text)
-
-        self._buttons = QDialogButtonBox(QDialogButtonBox.Save | QDialogButtonBox.Close)
-        self._buttons.accepted.connect(self.validate)
-        self._buttons.rejected.connect(self.reject)
-        self.layout().addRow(self._buttons)
-
-    def ip(self):
-        return self._ip_text.text()
-
-    def validate(self):
-        if not self._ip_text.hasAcceptableInput():
-            self._label.setText('Not a valid IP address')
-            return
-
-        text = self._ip_text.text()
-        for part in text.split('.'):
-            if not part or int(part) > 255:
-                self._label.setText('Not a valid IP address')
-                return
-
-        if self.parent().check_exists(text):
-            self._label.setText('Address already in use')
-            return
-
-        self.accept()
+        self._container.reset()
