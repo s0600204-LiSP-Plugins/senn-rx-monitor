@@ -27,24 +27,56 @@ from PyQt5.QtGui import QLinearGradient, QColor, QPainter, QPixmap
 
 from lisp.ui.widgets import DBMeter
 
-class PercentageMeter(DBMeter):
+class AFMeter(DBMeter):
+    '''
+    AF Meter of the Sennheiser EM 300/500 G3/G4 and EM 2000 receivers.
 
-    def plot(self, peaks, decay_peaks):
-        # Rescale: Sennheiser gives percentages, we need dB
-        scale = (self.dBMax - self.dBMin) / 100
-        new_peaks = [self.dBMin + peak * scale for peak in peaks]
-        new_decays = [self.dBMin + peak * scale for peak in decay_peaks]
-        super().plot(new_peaks, None, new_decays)
+    The values we receive from the receiver are "percentages" with
+    (according to the documentation) 0% == -50 dB and 100% == "peak".
+    Greater than 100% is possible. And that's all they have to say.
 
-class AFMeter(PercentageMeter):
+    Now the transition between % and dB could probably be calculated
+    easily, however unfortunately my mathematical skills are limited,
+    and I couldn't "see" an easy way of doing it, hence the use of an
+    interpreted lookup/mapping table below.
+    '''
+
+    # pylint: disable=bad-whitespace
+    peak_map = [
+        [ 5, -50],
+        [10, -40],
+        [15, -30],
+        [25, -20],
+        [45, -10],
+        [95,   0],
+    ]
 
     def __init__(self, parent=None):
-        super().__init__(parent, dBMin=-50, unit='dB')
-        self.scale = lambda db: db / abs(self.dBMin - self.dBMax) + 1
+        super().__init__(parent, dBMin=-50, smoothing=0, unit='dB')
+        self.peak_map_keys = [v[0] for v in self.peak_map]
 
-    def plot(self, *args):
+    def plot(self, peaks, decays):
         self.clipping = {}
-        super().plot(*args)
+        new_peaks = [self.remap_peak(peak) for peak in peaks]
+        new_decays = [self.remap_peak(decay) for decay in decays]
+        super().plot(new_peaks, None, new_decays)
+
+    def remap_peak(self, peak):
+        if peak in self.peak_map_keys:
+            return self.peak_map[self.peak_map_keys.index(peak)][1]
+
+        bounds = [self.peak_map_keys[0], self.peak_map_keys[-1]]
+        for interval in self.peak_map_keys:
+            if bounds[0] < interval < bounds[1]:
+                if interval < peak:
+                    bounds[0] = interval
+                elif interval > peak:
+                    bounds[1] = interval
+
+        coord_a = self.peak_map[self.peak_map_keys.index(bounds[0])]
+        coord_b = self.peak_map[self.peak_map_keys.index(bounds[1])]
+        scale = (coord_b[1] - coord_a[1]) / (coord_b[0] - coord_a[0])
+        return int(coord_a[1] + (peak - coord_a[0]) * scale)
 
     def reset(self):
         self.peaks = [self.dBMin]
@@ -53,7 +85,7 @@ class AFMeter(PercentageMeter):
 
         self.update()
 
-class RFMeter(PercentageMeter):
+class RFMeter(DBMeter):
 
     def __init__(self, parent=None):
         super().__init__(parent,
@@ -64,8 +96,11 @@ class RFMeter(PercentageMeter):
         self.scale = lambda db: db / abs(self.dBMin - self.dBMax)
         self.squelch = 1
 
-    def plot(self, *args):
-        super().plot(*args)
+    def plot(self, peaks, decays):
+        scale = (self.dBMax - self.dBMin) / 100
+        new_peaks = [self.dBMin + peak * scale for peak in peaks]
+        new_decays = [self.dBMin + decay * scale for decay in decays]
+        super().plot(new_peaks, None, new_decays)
         self.clipping = {}
 
     def setSquelch(self, squelch):
