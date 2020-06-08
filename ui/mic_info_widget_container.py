@@ -29,11 +29,11 @@ from PyQt5.QtWidgets import QAction, QDialog, QMenu, QWidget
 
 from lisp.plugins import get_plugin
 
+from ..server import Transmit
 from .add_receiver_dialog import AddReceiverDialog
-from .drag_widget import DRAG_MAGIC
-from .mic_info_widget import MicInfoWidget
 from .qflowlayout import QFlowLayout
-from .server import Transmit
+from .widgets.drag import DRAG_MAGIC
+from .widgets.mic_info import MicInfoWidget
 
 UPDATE_DURATION = 1 # seconds
 UPDATE_FREQUENCY = 100 # milliseconds

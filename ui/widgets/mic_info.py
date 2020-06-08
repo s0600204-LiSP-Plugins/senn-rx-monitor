@@ -31,9 +31,9 @@ from lisp.core.decorators import async_function
 from lisp.core.signal import Signal
 
 from .battery_indicator import BatteryIndicator
-from .drag_widget import DragWidget
-from .status_indicator import StatusIndicator
+from .drag import DragWidget
 from .meters import AFMeter, RFMeter
+from .status_indicator import StatusIndicator
 
 
 class MicInfoWidget(QWidget):
@@ -113,7 +113,7 @@ class MicInfoWidget(QWidget):
             # These are always received in the same order, and are listed in that order.
             'RF1': self.parse_rf,
             'RF2': self.parse_rf,
-            #'States'
+            #'States',
             'RF': self.set_rf,
             'AF': self.set_af,
             'Bat': lambda attrs: self._battery_meter.setFilled(attrs[0]),
