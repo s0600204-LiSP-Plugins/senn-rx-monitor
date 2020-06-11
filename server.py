@@ -26,11 +26,11 @@ import logging
 import socket
 from socketserver import BaseRequestHandler, UDPServer
 from threading import Thread
+import time
 
+from lisp.core.clock import Clock
 from lisp.core.signal import Connection, Signal
 from lisp.core.util import get_lan_ip
-
-from .timeout import Timeout
 
 logger = logging.getLogger(__name__)
 
@@ -40,9 +40,10 @@ TIMEOUT_INTERVAL = 1 # seconds
 class SennheiserUDPHandler(BaseRequestHandler):
 
     def handle(self):
-        for msg in str(self.request[0].strip(), 'ascii').split('\r'):
-            msg = msg.split()
-            self.server.dispatch(self.client_address[0], msg[0], msg[1:])
+        self.server.dispatch(
+            self.client_address[0],
+            str(self.request[0].strip(), 'ascii').split('\r')
+        )
 
 class SennheiserUDPListener(Thread):
 
@@ -58,9 +59,7 @@ class SennheiserUDPListener(Thread):
         return self._server.register(ip, dispatch_callback, reset_callback)
 
     def transmit(self, ip, message):
-        self._server.start_timeout(ip)
-        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
-            s.sendto(bytes(message + '\r', 'ascii'), (ip, PORT))
+        self._server.transmit(ip, message)
 
     def run(self):
         with self._server as server:
@@ -78,6 +77,8 @@ class SennheiserUDPServer(UDPServer):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._registered = {}
+        self._clock = Clock(TIMEOUT_INTERVAL * 1000)
+        self._clock.add_callback(self.disconnect_detection)
 
     def deregister(self, ip):
         if ip not in self._registered:
@@ -85,19 +86,36 @@ class SennheiserUDPServer(UDPServer):
             return False
 
         self._registered[ip]['dispatch'].disconnect()
-        self._registered[ip]['reset_timeout'].stop()
-        self._registered[ip]['reset_timeout'].end.disconnect()
+        self._registered[ip]['reset'].disconnect()
         del self._registered[ip]
         return True
 
-    def dispatch(self, source, command, attributes=[]):
-        if source in self._registered:
-            self._registered[source]['dispatch'].emit(command, attributes)
-            self._registered[source]['reset_timeout'].restart()
+    def disconnect_detection(self):
+        now = time.monotonic();
+        for reg in self._registered.values():
 
-    def start_timeout(self, ip):
-        if ip in self._registered:
-            self._registered[ip]['reset_timeout'].start()
+            # Not transmitted anything yet
+            if not reg['last_tx']:
+                continue
+
+            # Not received anything, but not enough time has passed yet
+            if not reg['last_rx'] and reg['last_tx'] + TIMEOUT_INTERVAL > now:
+                continue
+
+            # Received recently enough
+            if reg ['last_rx'] + TIMEOUT_INTERVAL > now:
+                continue
+
+            reg['reset'].emit()
+
+    def dispatch(self, source, messages):
+        if source not in self._registered:
+            return
+
+        self._registered[source]['last_rx'] = time.monotonic()
+        for msg in messages:
+            msg = msg.split()
+            self._registered[source]['dispatch'].emit(msg[0], msg[1:])
 
     def register(self, ip, dispatch_callback, reset_callback):
         if ip in self._registered:
@@ -108,11 +126,21 @@ class SennheiserUDPServer(UDPServer):
         dispatch_signal = Signal()
         dispatch_signal.connect(dispatch_callback, Connection.QtQueued)
 
-        timeout = Timeout(TIMEOUT_INTERVAL)
-        timeout.end.connect(reset_callback, Connection.QtQueued)
+        reset_signal = Signal()
+        reset_signal.connect(reset_callback, Connection.QtQueued)
 
         self._registered[ip] = {
             "dispatch": dispatch_signal,
-            "reset_timeout": timeout,
+            "reset": reset_signal,
+            "last_tx": None,
+            "last_rx": None,
         }
         return True
+
+    def transmit(self, target, message):
+        if target not in self._registered:
+            return
+
+        self._registered[target]['last_tx'] = time.monotonic()
+        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
+            s.sendto(bytes(message + '\r', 'ascii'), (target, PORT))
