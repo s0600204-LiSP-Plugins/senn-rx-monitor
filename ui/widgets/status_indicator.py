@@ -77,6 +77,12 @@ class StatusIndicator(QWidget):
 
         painter.end()
 
+    def reset(self):
+        self._statuses['tx'] = -1
+        self._statuses['rf'] = -1
+        self._statuses['rx'] = -1
+        self.update()
+
     def resizeEvent(self, _):
         # pylint: disable=invalid-name
         self.updateSegments()

@@ -142,6 +142,8 @@ class MicInfoWidget(QWidget):
         self._label_name.setText("-")
         self._label_freq.setText("-")
         self._battery_meter.setFilled("?")
+        self._status_indicator.reset()
+        self._config_num = -1
 
     def set_af(self, attrs):
         self._af_meter.plot([int(attrs[0])], [int(attrs[1])])

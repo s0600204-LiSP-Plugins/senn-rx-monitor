@@ -30,9 +30,12 @@ from threading import Thread
 from lisp.core.signal import Connection, Signal
 from lisp.core.util import get_lan_ip
 
+from .timeout import Timeout
+
 logger = logging.getLogger(__name__)
 
 PORT = 53212
+TIMEOUT_INTERVAL = 1 # seconds
 
 class SennheiserUDPHandler(BaseRequestHandler):
 
@@ -51,8 +54,13 @@ class SennheiserUDPListener(Thread):
     def deregister(self, ip):
         return self._server.deregister(ip)
 
-    def register(self, ip, callback):
-        return self._server.register(ip, callback)
+    def register(self, ip, dispatch_callback, reset_callback):
+        return self._server.register(ip, dispatch_callback, reset_callback)
+
+    def transmit(self, ip, message):
+        self._server.start_timeout(ip)
+        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
+            s.sendto(bytes(message + '\r', 'ascii'), (ip, PORT))
 
     def run(self):
         with self._server as server:
@@ -76,26 +84,35 @@ class SennheiserUDPServer(UDPServer):
             logger.warning("Unable to deregister device on {}, due to not being registered".format(ip))
             return False
 
-        self._registered[ip].disconnect()
+        self._registered[ip]['dispatch'].disconnect()
+        self._registered[ip]['reset_timeout'].stop()
+        self._registered[ip]['reset_timeout'].end.disconnect()
         del self._registered[ip]
         return True
 
     def dispatch(self, source, command, attributes=[]):
         if source in self._registered:
-            self._registered[source].emit(command, attributes)
+            self._registered[source]['dispatch'].emit(command, attributes)
+            self._registered[source]['reset_timeout'].restart()
 
-    def register(self, ip, callback):
+    def start_timeout(self, ip):
+        if ip in self._registered:
+            self._registered[ip]['reset_timeout'].start()
+
+    def register(self, ip, dispatch_callback, reset_callback):
         if ip in self._registered:
             logging.warning("Unable to register device on {}, due to a device already being registered at this address".format(ip))
             return False
 
-        # Call the callback via a Queued signal so as to run the callback on the main event thread.
-        signal = Signal()
-        signal.connect(callback, Connection.QtQueued)
-        self._registered[ip] = signal
+        # Call the callbacks via Queued signals so as to run the callbacks on the main event thread.
+        dispatch_signal = Signal()
+        dispatch_signal.connect(dispatch_callback, Connection.QtQueued)
+
+        timeout = Timeout(TIMEOUT_INTERVAL)
+        timeout.end.connect(reset_callback, Connection.QtQueued)
+
+        self._registered[ip] = {
+            "dispatch": dispatch_signal,
+            "reset_timeout": timeout,
+        }
         return True
-
-
-def Transmit(ip, message):
-    with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
-        s.sendto(bytes(message + '\r', 'ascii'), (ip, PORT))

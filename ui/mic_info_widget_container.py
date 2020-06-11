@@ -29,7 +29,6 @@ from PyQt5.QtWidgets import QAction, QDialog, QMenu, QWidget
 
 from lisp.plugins import get_plugin
 
-from ..server import Transmit
 from .add_receiver_dialog import AddReceiverDialog
 from .qflowlayout import QFlowLayout
 from .widgets.drag import DRAG_MAGIC
@@ -83,7 +82,7 @@ class MicInfoWidgetContainer(QWidget):
     def append_widget(self, ip):
         new_widget = MicInfoWidget(ip)
         self.layout().addWidget(new_widget)
-        self._listener.register(new_widget.ip(), new_widget.handle)
+        self._listener.register(new_widget.ip(), new_widget.handle, new_widget.reset)
         new_widget.config_request.connect(self.make_config_update_request)
         get_plugin('SennRxMonitor').append_rx(ip)
 
@@ -143,10 +142,10 @@ class MicInfoWidgetContainer(QWidget):
 
     def make_push_request(self):
         for item in self.layout().children():
-            Transmit(item.widget().ip(), 'Push {} {} 0'.format(UPDATE_DURATION, UPDATE_FREQUENCY))
+            self._listener.transmit(item.widget().ip(), 'Push {} {} 0'.format(UPDATE_DURATION, UPDATE_FREQUENCY))
 
     def make_config_update_request(self, ip):
-        Transmit(ip, 'Push 0 0 1')
+        self._listener.transmit(ip, 'Push 0 0 1')
 
     def minimumSize(self):
         return self.layout().minimumSize()
