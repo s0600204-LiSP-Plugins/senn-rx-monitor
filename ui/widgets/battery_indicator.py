@@ -43,9 +43,9 @@ class BatteryIndicator(QWidget):
 
         self._background_color = QColor(32, 32, 32)
         self._border_color = QColor(80, 80, 80)
-        self._segment_border_color = self.palette().highlight().color()
+        self._segment_border_color = QColor(0, 192, 0)
         self._segment_border_low_color = QColor(250, 0, 0)
-        self._segment_fill_brush = self.palette().highlight()
+        self._segment_fill_color = QColor(0, 128, 0)
 
     def paintEvent(self, _):
         # pylint: disable=invalid-name
@@ -79,7 +79,7 @@ class BatteryIndicator(QWidget):
                     path.lineTo(*point)
             path.closeSubpath()
             if seg_num < self._filled:
-                painter.setBrush(self._segment_fill_brush)
+                painter.setBrush(self._segment_fill_color)
             else:
                 painter.setBrush(self._background_color)
             painter.drawPath(path)
