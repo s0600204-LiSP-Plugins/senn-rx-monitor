@@ -22,6 +22,8 @@
 # You should have received a copy of the GNU General Public License
 # along with Linux Show Player.  If not, see <http://www.gnu.org/licenses/>.
 
+import copy
+
 # pylint: disable=no-name-in-module
 from PyQt5.QtCore import Qt, QRect
 from PyQt5.QtGui import QColor, QPainter, QPainterPath
@@ -37,6 +39,7 @@ class BatteryIndicator(QWidget):
         self.setMinimumHeight(28)
         self._segments = []
         self._filled = -1
+        self._segment_count = 3
 
         self._background_color = QColor(32, 32, 32)
         self._border_color = QColor(80, 80, 80)
@@ -102,47 +105,48 @@ class BatteryIndicator(QWidget):
         # pylint: disable=invalid-name
         height = self.height() - self.margin * 2
         width = self.width() - self.margin * 2
-        jut = height / 4
-        gap = self.margin / 2
-        seventh = (width - gap * 2) / 7
+        jut = height / 5
+        vgrid = (width - self.margin * (self._segment_count - 1)) / (self._segment_count * 3 - 2)
+        offset = self.margin
 
         def _apply_offset(segment, hoffset):
             for point in segment:
                 point[0] += hoffset
                 point[1] += self.margin
 
-        # Determine the points to draw the following:
-        # |‾‾/ /‾‾/ /‾|
-        # |_/ /__/ /__|
+        # |‾‾/
+        # |_/
         left_segment = [
             [0, 0],
-            [seventh * 2 + jut - gap, 0],
-            [seventh * 2 - jut - gap, height],
+            [vgrid * 2 + jut, 0],
+            [vgrid * 2 - jut, height],
             [0, height]
         ]
-        offset = self.margin
-        _apply_offset(left_segment, self.margin)
+        _apply_offset(left_segment, offset)
+        self._segments.append(left_segment)
+        offset += vgrid * 2 + self.margin
 
+        #  /‾‾/
+        # /__/
         centre_segment = [
             [jut, 0],
-            [seventh * 3 + jut - gap, 0],
-            [seventh * 3 - jut - gap, height],
+            [vgrid * 3 + jut, 0],
+            [vgrid * 3 - jut, height],
             [-jut, height]
         ]
-        offset += seventh * 2 + gap
-        _apply_offset(centre_segment, offset)
+        for _ in range(self._segment_count - 2):
+            cs = copy.deepcopy(centre_segment)
+            _apply_offset(cs, offset)
+            self._segments.append(cs)
+            offset += vgrid * 3 + self.margin
 
+        #  /‾|
+        # /__|
         right_segment = [
             [jut, 0],
-            [seventh * 2, 0],
-            [seventh * 2, height],
+            [vgrid * 2, 0],
+            [vgrid * 2, height],
             [-jut, height]
         ]
-        offset += seventh * 3 + gap
         _apply_offset(right_segment, offset)
-
-        self._segments = [
-            left_segment,
-            centre_segment,
-            right_segment,
-        ]
+        self._segments.append(right_segment)
