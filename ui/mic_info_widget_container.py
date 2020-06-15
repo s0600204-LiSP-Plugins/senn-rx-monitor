@@ -23,7 +23,7 @@
 # along with Linux Show Player.  If not, see <http://www.gnu.org/licenses/>.
 
 # pylint: disable=no-name-in-module
-from PyQt5.QtCore import QLine, QSize, QTimer
+from PyQt5.QtCore import QLine, QSize
 from PyQt5.QtGui import QColor, QPainter
 from PyQt5.QtWidgets import QAction, QDialog, QMenu, QWidget
 
@@ -33,9 +33,6 @@ from .add_receiver_dialog import AddReceiverDialog
 from .qflowlayout import QFlowLayout
 from .widgets.drag import DRAG_MAGIC
 from .widgets.mic_info import MicInfoWidget
-
-UPDATE_DURATION = 1 # seconds
-UPDATE_FREQUENCY = 100 # milliseconds
 
 
 class MicInfoWidgetContainer(QWidget):
@@ -49,10 +46,6 @@ class MicInfoWidgetContainer(QWidget):
         self._listener = listener
         self._menu = QMenu(self)
         self.mouse_over_widget = None
-
-        self._timer = QTimer(self)
-        self._timer.timeout.connect(self.make_push_request)
-        self._timer.setInterval(UPDATE_DURATION * 1000)
 
         self.setAcceptDrops(True)
         self._dragDropIndex = None
@@ -80,10 +73,12 @@ class MicInfoWidgetContainer(QWidget):
             self.append_widget(self._add_dialog.ip())
 
     def append_widget(self, ip):
-        new_widget = MicInfoWidget(ip)
-        self.layout().addWidget(new_widget)
-        self._listener.register(new_widget.ip(), new_widget.handle, new_widget.reset)
-        new_widget.config_request.connect(self.make_config_update_request)
+        worker = self._listener.request_new_worker(ip)
+        widget = MicInfoWidget(worker)
+
+        self.layout().addWidget(widget)
+        self._listener.register(worker)
+
         get_plugin('SennRxMonitor').append_rx(ip)
 
     def check_exists(self, ip):
@@ -140,13 +135,6 @@ class MicInfoWidgetContainer(QWidget):
         self._dragDropIndex = None
         get_plugin('SennRxMonitor').move_rx(dropped.ip(), new_index)
 
-    def make_push_request(self):
-        for item in self.layout().children():
-            self._listener.transmit(item.widget().ip(), 'Push {} {} 0'.format(UPDATE_DURATION, UPDATE_FREQUENCY))
-
-    def make_config_update_request(self, ip):
-        self._listener.transmit(ip, 'Push 0 0 1')
-
     def minimumSize(self):
         return self.layout().minimumSize()
 
@@ -163,7 +151,6 @@ class MicInfoWidgetContainer(QWidget):
 
     def remove_widget(self, widget):
         self._listener.deregister(widget.ip())
-        widget.config_request.disconnect()
         self.layout().removeWidget(widget)
         get_plugin('SennRxMonitor').remove_rx(widget.ip())
         widget.deleteLater()
@@ -173,10 +160,3 @@ class MicInfoWidgetContainer(QWidget):
         while item:
             self.remove_widget(item.widget())
             item = self.layout().takeAt(0)
-
-    def start_timers(self):
-        self._timer.start()
-        self.make_push_request()
-
-    def stop_timers(self):
-        self._timer.stop()

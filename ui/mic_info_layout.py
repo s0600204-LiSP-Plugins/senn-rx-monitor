@@ -42,7 +42,6 @@ class MicInfoLayout(CueLayout):
 
         listener = get_plugin('SennRxMonitor').listener()
         self._container = MicInfoWidgetContainer(listener)
-        self._container.start_timers()
 
         self.app.session_initialised.connect(self.load)
 
@@ -60,7 +59,6 @@ class MicInfoLayout(CueLayout):
         pass
 
     def finalize(self):
-        self._container.stop_timers()
         self._container.reset()
         self.app.session_initialised.disconnect(self.load)
 

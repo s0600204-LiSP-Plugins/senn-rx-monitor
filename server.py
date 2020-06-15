@@ -29,13 +29,15 @@ from threading import Thread
 import time
 
 from lisp.core.clock import Clock
-from lisp.core.signal import Connection, Signal
+from lisp.core.signal import Signal
 from lisp.core.util import get_lan_ip
 
 logger = logging.getLogger(__name__)
 
 PORT = 53212
-TIMEOUT_INTERVAL = 1 # seconds
+
+UPDATE_INTERVAL = 1 # seconds
+UPDATE_FREQUENCY = 100 # milliseconds
 
 class SennheiserUDPHandler(BaseRequestHandler):
 
@@ -55,11 +57,11 @@ class SennheiserUDPListener(Thread):
     def deregister(self, ip):
         return self._server.deregister(ip)
 
-    def register(self, ip, dispatch_callback, reset_callback):
-        return self._server.register(ip, dispatch_callback, reset_callback)
+    def register(self, worker):
+        return self._server.register(worker)
 
-    def transmit(self, ip, message):
-        self._server.transmit(ip, message)
+    def request_new_worker(self, ip):
+        return SennheiserMCPWorker(self._server, ip)
 
     def run(self):
         with self._server as server:
@@ -77,70 +79,97 @@ class SennheiserUDPServer(UDPServer):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._registered = {}
-        self._clock = Clock(TIMEOUT_INTERVAL * 1000)
-        self._clock.add_callback(self.disconnect_detection)
+        self._clock = Clock(UPDATE_INTERVAL * 1000)
 
     def deregister(self, ip):
         if ip not in self._registered:
             logger.warning("Unable to deregister device on {}, due to not being registered".format(ip))
             return False
 
-        self._registered[ip]['dispatch'].disconnect()
-        self._registered[ip]['reset'].disconnect()
+        self._clock.remove_callback(self._registered[ip].run)
         del self._registered[ip]
         return True
-
-    def disconnect_detection(self):
-        now = time.monotonic();
-        for reg in self._registered.values():
-
-            # Not transmitted anything yet
-            if not reg['last_tx']:
-                continue
-
-            # Not received anything, but not enough time has passed yet
-            if not reg['last_rx'] and reg['last_tx'] + TIMEOUT_INTERVAL > now:
-                continue
-
-            # Received recently enough
-            if reg ['last_rx'] + TIMEOUT_INTERVAL > now:
-                continue
-
-            reg['reset'].emit()
 
     def dispatch(self, source, messages):
         if source not in self._registered:
             return
+        self._registered[source].receive(messages)
 
-        self._registered[source]['last_rx'] = time.monotonic()
-        for msg in messages:
-            msg = msg.split()
-            self._registered[source]['dispatch'].emit(msg[0], msg[1:])
-
-    def register(self, ip, dispatch_callback, reset_callback):
+    def register(self, worker):
+        ip = worker.ip()
         if ip in self._registered:
             logging.warning("Unable to register device on {}, due to a device already being registered at this address".format(ip))
             return False
 
-        # Call the callbacks via Queued signals so as to run the callbacks on the main event thread.
-        dispatch_signal = Signal()
-        dispatch_signal.connect(dispatch_callback, Connection.QtQueued)
-
-        reset_signal = Signal()
-        reset_signal.connect(reset_callback, Connection.QtQueued)
-
-        self._registered[ip] = {
-            "dispatch": dispatch_signal,
-            "reset": reset_signal,
-            "last_tx": None,
-            "last_rx": None,
-        }
+        self._registered[ip] = worker
+        self._clock.add_callback(worker.run)
         return True
 
     def transmit(self, target, message):
         if target not in self._registered:
             return
 
-        self._registered[target]['last_tx'] = time.monotonic()
         with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
             s.sendto(bytes(message + '\r', 'ascii'), (target, PORT))
+
+class SennheiserMCPWorker:
+
+    def __init__(self, server, ip):
+        self._ip = ip
+        self._server = server
+        self._last_rx = None
+
+        self.lost_connection = Signal()
+        self.updated_af_level = Signal() # int, int (level, peak)
+        self.updated_battery_status = Signal() # str
+        self.updated_config_num = Signal() # str
+        self.updated_frequency = Signal() # str
+        self.updated_name = Signal() # str
+        self.updated_rf = Signal() # -
+        self.updated_rf_levels = Signal() # int, int (level, peak)
+        self.updated_status = Signal() # array(str, ...)
+        self.updated_squelch = Signal() # int
+
+        self._handlers = {
+            # Responses to specific commands
+            'Name': lambda args: self.updated_name.emit(' '.join(args)),
+            'Frequency': lambda args: self.updated_frequency.emit(args[0]),
+            'Squelch': lambda args: self.updated_squelch.emit(int(args[0])),
+            #'AfOut',
+            #'Equalizer`,
+            #'Mute',
+
+            # Cyclic Attributes.
+            # These are always received in the same order, and are listed in that order.
+            'RF1': lambda args: self.updated_rf_levels.emit(int(args[0]), int(args[1])),
+            'RF2': lambda args: self.updated_rf_levels.emit(int(args[0]), int(args[1])),
+            #'States',
+            'RF': lambda _: self.updated_rf.emit(),
+            'AF': lambda args: self.updated_af_level.emit(int(args[0]), int(args[1])),
+            'Bat': lambda args: self.updated_battery_status.emit(args[0]),
+            'Msg': self.updated_status.emit,
+            'Config': lambda args: self.updated_config_num.emit(args[0]),
+        }
+
+    def ip(self):
+        return self._ip
+
+    def receive(self, messages):
+        '''Processes messages received from the target'''
+        self._last_rx = time.monotonic()
+        for msg in messages:
+            msg = msg.split()
+            self._handlers.get(msg[0], lambda _: None)(msg[1:])
+
+    def request_config(self):
+        self._server.transmit(self._ip, 'Push 0 0 1')
+
+    def run(self):
+        '''Code to run every UPDATE_INTERVAL'''
+        self._server.transmit(self._ip, 'Push {} {} 0'.format(UPDATE_INTERVAL, UPDATE_FREQUENCY))
+
+        if not self._last_rx or self._last_rx + UPDATE_INTERVAL > time.monotonic():
+            return
+
+        self.lost_connection.emit()
+        self._last_rx = None

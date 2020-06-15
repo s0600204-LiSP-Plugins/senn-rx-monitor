@@ -45,7 +45,6 @@ class MicInfoDialog(QDialog):
         self.setWindowFlags(flags)
 
         self._container = MicInfoWidgetContainer(listener)
-        self.finished.connect(self._container.stop_timers)
         self._container.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
         self.layout().addWidget(self._container)
 
@@ -57,10 +56,6 @@ class MicInfoDialog(QDialog):
 
     def minimumSizeHint(self):
         return self._container.minimumSizeHint()
-
-    def open(self):
-        super().open()
-        self._container.start_timers()
 
     def reset(self):
         self._container.reset()

@@ -27,8 +27,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QColor, QPainter
 from PyQt5.QtWidgets import QGridLayout, QLabel, QWidget
 
-from lisp.core.decorators import async_function
-from lisp.core.signal import Signal
+from lisp.core.signal import Connection
 
 from .battery_indicator import BatteryIndicator
 from .drag import DragWidget
@@ -38,13 +37,11 @@ from .status_indicator import StatusIndicator
 
 class MicInfoWidget(QWidget):
 
-    config_request = Signal()
-
-    def __init__(self, ip):
+    def __init__(self, worker):
         super().__init__()
 
         self._config_num = -1
-        self._ip = ip
+        self._worker = worker
 
         self._border_color = QColor(80, 80, 80)
         self.setMinimumSize(120, 300)
@@ -81,11 +78,24 @@ class MicInfoWidget(QWidget):
 
         self.reset()
 
-    def check_config(self, attrs):
-        if attrs[0] == self._config_num:
+        # We use Connection.QtQueued as the signals are emitted on the server/listener thread
+        # and we need to run the connected methods on the main event loop thread.
+        self._worker.lost_connection.connect(self.reset, Connection.QtQueued)
+        self._worker.updated_af_level.connect(self.set_af, Connection.QtQueued)
+        self._worker.updated_battery_status.connect(self.update_battery_status, Connection.QtQueued)
+        self._worker.updated_config_num.connect(self.check_config, Connection.QtQueued)
+        self._worker.updated_frequency.connect(self.set_freq, Connection.QtQueued)
+        self._worker.updated_name.connect(self.set_name, Connection.QtQueued)
+        self._worker.updated_rf.connect(self.set_rf, Connection.QtQueued)
+        self._worker.updated_rf_levels.connect(self.parse_rf, Connection.QtQueued)
+        self._worker.updated_status.connect(self.update_status, Connection.QtQueued)
+        self._worker.updated_squelch.connect(self.set_squelch, Connection.QtQueued)
+
+    def check_config(self, config_num):
+        if config_num == self._config_num:
             return
-        self._config_num = attrs[0]
-        self.config_request.emit(self._ip)
+        self._config_num = config_num
+        self._worker.request_config()
 
     def clear(self):
         self._rf_meter.reset()
@@ -99,31 +109,8 @@ class MicInfoWidget(QWidget):
     def delete_self(self):
         self.parent().remove_widget(self)
 
-    def handle(self, command, attributes):
-        handlers = {
-            # Responses to specific commands
-            'Name': lambda attrs: self._label_name.setText(' '.join(attrs)),
-            'Frequency': self.set_freq,
-            'Squelch': lambda attrs: self._rf_meter.setSquelch(int(attrs[0])),
-            #'AfOut'
-            #'Equalizer`
-            #'Mute'
-
-            # Cyclic Attributes.
-            # These are always received in the same order, and are listed in that order.
-            'RF1': self.parse_rf,
-            'RF2': self.parse_rf,
-            #'States',
-            'RF': self.set_rf,
-            'AF': self.set_af,
-            'Bat': lambda attrs: self._battery_meter.setFilled(attrs[0]),
-            'Msg': lambda attrs: self._status_indicator.setStatus(attrs),
-            'Config': self.check_config,
-        }
-        handlers.get(command, lambda _: None)(attributes)
-
     def ip(self):
-        return self._ip
+        return self._worker.ip()
 
     def paintEvent(self, _):
         # pylint: disable=invalid-name
@@ -133,9 +120,9 @@ class MicInfoWidget(QWidget):
         painter.drawRect(0, 0, self.width() - 1, self.height() - 1)
         painter.end()
 
-    def parse_rf(self, attrs):
-        self._rf_levels[0].append(int(attrs[0]))
-        self._rf_levels[1].append(int(attrs[1]))
+    def parse_rf(self, level, peak):
+        self._rf_levels[0].append(level)
+        self._rf_levels[1].append(peak)
 
     def reset(self):
         self.clear()
@@ -145,16 +132,24 @@ class MicInfoWidget(QWidget):
         self._status_indicator.reset()
         self._config_num = -1
 
-    def set_af(self, attrs):
-        self._af_meter.plot([int(attrs[0])], [int(attrs[1])])
+    def set_af(self, level, peak):
+        self._af_meter.plot([level], [peak])
 
-    def set_freq(self, attrs):
-        freq = attrs[0]
+    def set_freq(self, freq):
         self._label_freq.setText("{}.{} MHz".format(freq[0:3], freq[3:6]))
 
     def set_name(self, name):
         self._label_name.setText(name)
 
-    def set_rf(self, _):
+    def set_rf(self):
         self._rf_meter.plot(*self._rf_levels)
         self._rf_levels = [[], []]
+
+    def set_squelch(self, squelch):
+        self._rf_meter.setSquelch(squelch)
+
+    def update_battery_status(self, status):
+        self._battery_meter.setFilled(status)
+
+    def update_status(self, statuses):
+        self._status_indicator.setStatus(statuses)
