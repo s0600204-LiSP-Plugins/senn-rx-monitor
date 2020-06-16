@@ -34,7 +34,7 @@ from lisp.core.session import Session
 from lisp.layout import register_layout
 from lisp.ui.ui_utils import translate
 
-from .server import SennheiserUDPListener
+from senn_rx_monitor.servers.mcp_server import SennheiserMCPServer
 from senn_rx_monitor.ui.mic_info_dialog import MicInfoDialog
 from senn_rx_monitor.ui.mic_info_layout import MicInfoLayout
 
@@ -52,8 +52,8 @@ class SennRxMonitor(Plugin):
     def __init__(self, app):
         super().__init__(app)
 
-        self._listener = SennheiserUDPListener()
-        self._listener.start()
+        self._server = SennheiserMCPServer()
+        self._server.start()
 
         MicInfoLayout.Config = SennRxMonitor.Config
         register_layout(MicInfoLayout)
@@ -72,7 +72,7 @@ class SennRxMonitor(Plugin):
 
     def _open_dialog(self):
         if not self._dialog:
-            self._dialog = MicInfoDialog(self._listener)
+            self._dialog = MicInfoDialog(self._server)
 
         if not self._dialog.count():
             for ip in self.app.session.senn_rx:
@@ -115,8 +115,8 @@ class SennRxMonitor(Plugin):
         if ip in self.app.session.senn_rx:
             self.app.session.senn_rx.remove(ip)
 
-    def listener(self):
-        return self._listener
+    def server(self):
+        return self._server
 
     def reset(self):
         if self._dialog:
@@ -124,4 +124,4 @@ class SennRxMonitor(Plugin):
             self._dialog.close()
 
     def terminate(self):
-        self._listener.stop()
+        self._server.stop()

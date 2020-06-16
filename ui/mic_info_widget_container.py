@@ -37,13 +37,13 @@ from .widgets.mic_info import MicInfoWidget
 
 class MicInfoWidgetContainer(QWidget):
 
-    def __init__(self, listener):
+    def __init__(self, server):
         super().__init__()
         self.setLayout(QFlowLayout())
         self._size_hint = QSize(1025, 300)
 
         self._add_dialog = None
-        self._listener = listener
+        self._server = server
         self._menu = QMenu(self)
         self.mouse_over_widget = None
 
@@ -73,11 +73,11 @@ class MicInfoWidgetContainer(QWidget):
             self.append_widget(self._add_dialog.ip())
 
     def append_widget(self, ip):
-        worker = self._listener.request_new_worker(ip)
+        worker = self._server.request_new_worker(ip)
         widget = MicInfoWidget(worker)
 
         self.layout().addWidget(widget)
-        self._listener.register(worker)
+        self._server.register(worker)
 
         get_plugin('SennRxMonitor').append_rx(ip)
 
@@ -150,7 +150,7 @@ class MicInfoWidgetContainer(QWidget):
             painter.end()
 
     def remove_widget(self, widget):
-        self._listener.deregister(widget.ip())
+        self._server.deregister(widget.ip())
         self.layout().removeWidget(widget)
         get_plugin('SennRxMonitor').remove_rx(widget.ip())
         widget.deleteLater()

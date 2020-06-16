@@ -30,7 +30,7 @@ from .mic_info_widget_container import MicInfoWidgetContainer
 
 class MicInfoDialog(QDialog):
 
-    def __init__(self, listener, **kwargs):
+    def __init__(self, server, **kwargs):
         super().__init__(**kwargs)
 
         self.setWindowTitle('Mic Info')
@@ -44,7 +44,7 @@ class MicInfoDialog(QDialog):
         flags |= Qt.WindowMinMaxButtonsHint
         self.setWindowFlags(flags)
 
-        self._container = MicInfoWidgetContainer(listener)
+        self._container = MicInfoWidgetContainer(server)
         self._container.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
         self.layout().addWidget(self._container)
 

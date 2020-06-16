@@ -39,7 +39,7 @@ PORT = 53212
 UPDATE_INTERVAL = 1 # seconds
 UPDATE_FREQUENCY = 100 # milliseconds
 
-class SennheiserUDPHandler(BaseRequestHandler):
+class _Handler(BaseRequestHandler):
 
     def handle(self):
         self.server.dispatch(
@@ -47,12 +47,12 @@ class SennheiserUDPHandler(BaseRequestHandler):
             str(self.request[0].strip(), 'ascii').split('\r')
         )
 
-class SennheiserUDPListener(Thread):
+class SennheiserMCPServer(Thread):
 
     def __init__(self):
         super().__init__(daemon=True)
         self.ip = get_lan_ip()
-        self._server = SennheiserUDPServer((self.ip, PORT), SennheiserUDPHandler)
+        self._server = _Server((self.ip, PORT), _Handler)
 
     def deregister(self, ip):
         return self._server.deregister(ip)
@@ -74,7 +74,7 @@ class SennheiserUDPListener(Thread):
             self.join()
 
 
-class SennheiserUDPServer(UDPServer):
+class _Server(UDPServer):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

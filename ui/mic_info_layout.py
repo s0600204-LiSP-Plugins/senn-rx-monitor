@@ -40,8 +40,8 @@ class MicInfoLayout(CueLayout):
     def __init__(self, application):
         super().__init__(application)
 
-        listener = get_plugin('SennRxMonitor').listener()
-        self._container = MicInfoWidgetContainer(listener)
+        server = get_plugin('SennRxMonitor').server()
+        self._container = MicInfoWidgetContainer(server)
 
         self.app.session_initialised.connect(self.load)
 
