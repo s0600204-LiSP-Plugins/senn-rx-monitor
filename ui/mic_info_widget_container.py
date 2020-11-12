@@ -27,6 +27,7 @@ from PyQt5.QtCore import QLine, QSize
 from PyQt5.QtGui import QColor, QPainter
 from PyQt5.QtWidgets import QAction, QDialog, QMenu, QWidget
 
+from lisp.core.plugin import PluginNotLoadedError
 from lisp.plugins import get_plugin
 
 from .add_receiver_dialog import AddReceiverDialog
@@ -152,7 +153,12 @@ class MicInfoWidgetContainer(QWidget):
     def remove_widget(self, widget):
         self._server.deregister(widget.ip())
         self.layout().removeWidget(widget)
-        get_plugin('SennRxMonitor').remove_rx(widget.ip())
+        try:
+            get_plugin('SennRxMonitor').remove_rx(widget.ip())
+        except PluginNotLoadedError:
+            # When LiSP closes, the plugin gets finalized before the layout.
+            # Thus, it no longer exists at this point.
+            pass
         widget.deleteLater()
 
     def reset(self):
