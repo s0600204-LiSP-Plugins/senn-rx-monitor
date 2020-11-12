@@ -30,7 +30,6 @@ import time
 
 from lisp.core.clock import Clock
 from lisp.core.signal import Signal
-from lisp.core.util import get_lan_ip
 
 logger = logging.getLogger(__name__)
 
@@ -51,8 +50,7 @@ class SennheiserMCPServer(Thread):
 
     def __init__(self):
         super().__init__(daemon=True)
-        self.ip = get_lan_ip()
-        self._server = _Server((self.ip, PORT), _Handler)
+        self._server = _Server(("0.0.0.0", PORT), _Handler)
 
     def deregister(self, ip):
         return self._server.deregister(ip)
@@ -65,7 +63,7 @@ class SennheiserMCPServer(Thread):
 
     def run(self):
         with self._server as server:
-            logger.info("Listening for messages from Sennheiser radio-mic receivers on UDP {}:{}".format(self.ip, PORT))
+            logger.info("Listening for messages from Sennheiser radio-mic receivers via UDP on port {}".format(PORT))
             server.serve_forever()
 
     def stop(self):
