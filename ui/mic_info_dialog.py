@@ -24,7 +24,10 @@
 
 # pylint: disable=no-name-in-module
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QDialog, QSizePolicy, QVBoxLayout
+from PyQt5.QtWidgets import QDialog, QDialogButtonBox, QPushButton, QSizePolicy, QVBoxLayout
+
+from lisp.plugins import get_plugin
+from lisp.ui.icons import IconTheme
 
 from .mic_info_widget_container import MicInfoWidgetContainer
 
@@ -35,7 +38,7 @@ class MicInfoDialog(QDialog):
 
         self.setWindowTitle('Mic Info')
         self.setLayout(QVBoxLayout())
-        self.layout().setContentsMargins(0, 0, 0, 0)
+        self.layout().setContentsMargins(4, 4, 4, 4)
 
         # Set flags so we get the min & max buttons
         # (and so they actually function)
@@ -47,6 +50,17 @@ class MicInfoDialog(QDialog):
         self._container = MicInfoWidgetContainer(server)
         self._container.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
         self.layout().addWidget(self._container)
+
+        self._discover_button = QPushButton()
+        self._discover_button.setText('Network Discover')
+        self._discover_button.setIcon(IconTheme.get('system-search'))
+        self._discover_button.clicked.connect(get_plugin('SennRxMonitor').discover)
+
+        self._buttons = QDialogButtonBox()
+        self._buttons.addButton(self._discover_button, QDialogButtonBox.ActionRole)
+        self._buttons.addButton(QDialogButtonBox.Close)
+        self._buttons.rejected.connect(self.reject)
+        self.layout().addWidget(self._buttons)
 
     def count(self):
         return self._container.count()

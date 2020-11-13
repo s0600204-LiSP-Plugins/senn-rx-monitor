@@ -31,10 +31,11 @@ from PyQt5.QtWidgets import QAction
 from lisp.core.has_properties import Property
 from lisp.core.plugin import Plugin
 from lisp.core.session import Session
-from lisp.core.signal import Signal
+from lisp.core.signal import Connection, Signal
 from lisp.layout import register_layout
 from lisp.ui.ui_utils import translate
 
+from senn_rx_monitor.discovery.mcp_discovery import SennheiserMCPDiscovery
 from senn_rx_monitor.servers.mcp_server import SennheiserMCPServer
 from senn_rx_monitor.ui.mic_info_dialog import MicInfoDialog
 from senn_rx_monitor.ui.mic_info_layout import MicInfoLayout
@@ -56,16 +57,26 @@ class SennRxMonitor(Plugin):
         self._server = SennheiserMCPServer()
         self._server.start()
 
+        self._discovery = SennheiserMCPDiscovery()
+        self._discovery.start()
+        self._discovery.discovered.connect(self.add_discovered, Connection.QtQueued)
+
         MicInfoLayout.Config = SennRxMonitor.Config
         register_layout(MicInfoLayout)
 
         self._dialog = None
         self._menu_action = QAction(translate('senn_rx_monitor', 'Radio Microphone Rx Status'), self.app.window)
+        self._menu_action_discover = QAction(translate('senn_rx_monitor', 'Discover RF Receivers'), self.app.window)
 
         self._rx_workers = {}
         self.rx_added = Signal() # ip, worker
         self.rx_moved = Signal() # ip, new_index
         self.rx_removed = Signal() # ip
+
+    def add_discovered(self, ip):
+        if ip in self.app.session.senn_rx:
+            return
+        self.append_rx(ip)
 
     def append_rx(self, ip):
         if ip in self._rx_workers:
@@ -78,6 +89,9 @@ class SennRxMonitor(Plugin):
         self._rx_workers[ip] = worker
         self._server.register(worker)
         self.rx_added.emit(ip, worker)
+
+    def discover(self):
+        self._discovery.discover()
 
     def rx_worker(self, ip):
         if ip in self._rx_workers:
@@ -104,6 +118,7 @@ class SennRxMonitor(Plugin):
                 self.app.window.menuLayout.menuAction(),
                 self.app.window.menuEdit
             )
+            self.app.window.menuTools.removeAction(self._menu_action_discover)
         else:
             self.app.window.menuTools.removeAction(self._menu_action)
 
@@ -129,6 +144,8 @@ class SennRxMonitor(Plugin):
             self.app.window.menubar.removeAction(
                 self.app.window.menuEdit.menuAction()
             )
+            self._menu_action_discover.triggered.connect(self.discover)
+            self.app.window.menuTools.addAction(self._menu_action_discover)
         else:
             self._menu_action.triggered.connect(self._open_dialog)
             self.app.window.menuTools.addAction(self._menu_action)

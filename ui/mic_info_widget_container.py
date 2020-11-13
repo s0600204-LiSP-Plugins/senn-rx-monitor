@@ -39,8 +39,8 @@ class MicInfoWidgetContainer(QWidget):
 
     def __init__(self, server):
         super().__init__()
-        self.setLayout(QFlowLayout())
-        self._size_hint = QSize(1025, 300)
+        self.setLayout(QFlowLayout(margin=4))
+        self._size_hint = QSize(1011, 300)
 
         self._add_dialog = None
         self._server = server
