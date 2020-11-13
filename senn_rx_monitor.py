@@ -31,6 +31,7 @@ from PyQt5.QtWidgets import QAction
 from lisp.core.has_properties import Property
 from lisp.core.plugin import Plugin
 from lisp.core.session import Session
+from lisp.core.signal import Signal
 from lisp.layout import register_layout
 from lisp.ui.ui_utils import translate
 
@@ -61,11 +62,31 @@ class SennRxMonitor(Plugin):
         self._dialog = None
         self._menu_action = QAction(translate('senn_rx_monitor', 'Radio Microphone Rx Status'), self.app.window)
 
-        self.app.session_created.connect(self.reset)
+        self._rx_workers = {}
+        self.rx_added = Signal() # ip, worker
+        self.rx_moved = Signal() # ip, new_index
+        self.rx_removed = Signal() # ip
 
     def append_rx(self, ip):
+        if ip in self._rx_workers:
+            return
+
         if ip not in self.app.session.senn_rx:
             self.app.session.senn_rx.append(ip)
+
+        worker = self._server.request_new_worker(ip)
+        self._rx_workers[ip] = worker
+        self._server.register(worker)
+        self.rx_added.emit(ip, worker)
+
+    def rx_worker(self, ip):
+        if ip in self._rx_workers:
+            return self._rx_workers[ip]
+        return None
+
+    @property
+    def rx_list(self):
+        return self.app.session.senn_rx
 
     def finalize(self):
         self.terminate()
@@ -73,11 +94,6 @@ class SennRxMonitor(Plugin):
     def _open_dialog(self):
         if not self._dialog:
             self._dialog = MicInfoDialog(self._server)
-
-        if not self._dialog.count():
-            for ip in self.app.session.senn_rx:
-                self._dialog.append_widget(ip)
-
         self._dialog.open()
 
     def _pre_session_deinitialisation(self, _):
@@ -90,6 +106,16 @@ class SennRxMonitor(Plugin):
             )
         else:
             self.app.window.menuTools.removeAction(self._menu_action)
+
+        if self._dialog:
+            self._dialog.close()
+
+        try:
+            while True:
+                ip = self.app.session.senn_rx[0]
+                self.remove_rx(ip)
+        except IndexError:
+            pass
 
     def _on_session_initialised(self, _):
         """Post-session-initialisation init.
@@ -107,21 +133,25 @@ class SennRxMonitor(Plugin):
             self._menu_action.triggered.connect(self._open_dialog)
             self.app.window.menuTools.addAction(self._menu_action)
 
+        for ip in self.app.session.senn_rx:
+            self.append_rx(ip)
+
     def move_rx(self, ip, new_index):
-        self.remove_rx(ip)
+        self.app.session.senn_rx.remove(ip)
         self.app.session.senn_rx.insert(new_index, ip)
+        self.rx_moved.emit(ip, new_index)
 
     def remove_rx(self, ip):
-        if ip in self.app.session.senn_rx:
-            self.app.session.senn_rx.remove(ip)
+        if ip not in self._rx_workers:
+            return
+
+        self._server.deregister(ip)
+        self.app.session.senn_rx.remove(ip)
+        self.rx_removed.emit(ip)
+        del self._rx_workers[ip]
 
     def server(self):
         return self._server
-
-    def reset(self):
-        if self._dialog:
-            self._dialog.reset()
-            self._dialog.close()
 
     def terminate(self):
         self._server.stop()

@@ -43,12 +43,6 @@ class MicInfoLayout(CueLayout):
         server = get_plugin('SennRxMonitor').server()
         self._container = MicInfoWidgetContainer(server)
 
-        self.app.session_initialised.connect(self.load)
-
-    def load(self):
-        for ip in self.app.session.senn_rx:
-            self._container.append_widget(ip)
-
     def cue_at(self, *_):
         raise IndexError("Layout does not support cues")
 
@@ -57,10 +51,6 @@ class MicInfoLayout(CueLayout):
 
     def deselect_all(self, *_):
         pass
-
-    def finalize(self):
-        self._container.reset()
-        self.app.session_initialised.disconnect(self.load)
 
     def invert_selection(self):
         pass

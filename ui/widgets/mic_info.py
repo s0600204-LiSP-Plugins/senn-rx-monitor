@@ -28,6 +28,7 @@ from PyQt5.QtGui import QColor, QPainter
 from PyQt5.QtWidgets import QGridLayout, QLabel, QWidget
 
 from lisp.core.signal import Connection
+from lisp.plugins import get_plugin
 
 from .battery_indicator import BatteryIndicator
 from .drag import DragWidget
@@ -107,7 +108,7 @@ class MicInfoWidget(QWidget):
         self.parent().contextMenuEvent(event)
 
     def delete_self(self):
-        self.parent().remove_widget(self)
+        get_plugin('SennRxMonitor').remove_rx(self.ip())
 
     def ip(self):
         return self._worker.ip()

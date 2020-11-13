@@ -48,14 +48,8 @@ class MicInfoDialog(QDialog):
         self._container.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
         self.layout().addWidget(self._container)
 
-    def append_widget(self, ip):
-        self._container.append_widget(ip)
-
     def count(self):
         return self._container.count()
 
     def minimumSizeHint(self):
         return self._container.minimumSizeHint()
-
-    def reset(self):
-        self._container.reset()

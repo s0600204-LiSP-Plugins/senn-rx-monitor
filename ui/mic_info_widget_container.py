@@ -27,7 +27,6 @@ from PyQt5.QtCore import QLine, QSize
 from PyQt5.QtGui import QColor, QPainter
 from PyQt5.QtWidgets import QAction, QDialog, QMenu, QWidget
 
-from lisp.core.plugin import PluginNotLoadedError
 from lisp.plugins import get_plugin
 
 from .add_receiver_dialog import AddReceiverDialog
@@ -53,6 +52,13 @@ class MicInfoWidgetContainer(QWidget):
         self._dragDropLine = None
         self._dragDropLineColor = QColor(160, 160, 160)
 
+        plugin = get_plugin('SennRxMonitor')
+        plugin.rx_added.connect(self.append_widget)
+        plugin.rx_removed.connect(self.remove_widget)
+
+        for ip in plugin.rx_list:
+            self.append_widget(ip, plugin.rx_worker(ip))
+
     def _create_menu_action(self, caption, slot):
         new_action = QAction(caption, parent=self._menu)
         new_action.triggered.connect(slot)
@@ -66,27 +72,25 @@ class MicInfoWidgetContainer(QWidget):
         new_action.setFont(font)
         self._menu.addAction(new_action)
 
+    def _find_widget(self, ip):
+        for item in self.layout().children():
+            if item.widget().ip() == ip:
+                return item.widget()
+        return None
+
     def add_receiver(self):
         if not self._add_dialog:
             self._add_dialog = AddReceiverDialog(parent=self)
 
         if self._add_dialog.exec() == QDialog.Accepted:
-            self.append_widget(self._add_dialog.ip())
+            get_plugin('SennRxMonitor').append_rx(self._add_dialog.ip())
 
-    def append_widget(self, ip):
-        worker = self._server.request_new_worker(ip)
+    def append_widget(self, _, worker):
         widget = MicInfoWidget(worker)
-
         self.layout().addWidget(widget)
-        self._server.register(worker)
-
-        get_plugin('SennRxMonitor').append_rx(ip)
 
     def check_exists(self, ip):
-        for item in self.layout().children():
-            if item.widget().ip() == ip:
-                return True
-        return False
+        return ip in get_plugin('SennRxMonitor').rx_list
 
     def count(self):
         return self.layout().count()
@@ -150,19 +154,13 @@ class MicInfoWidgetContainer(QWidget):
             painter.drawLine(self._dragDropLine)
             painter.end()
 
-    def remove_widget(self, widget):
-        self._server.deregister(widget.ip())
+    def remove_widget(self, ip):
+        widget = self._find_widget(ip)
         self.layout().removeWidget(widget)
-        try:
-            get_plugin('SennRxMonitor').remove_rx(widget.ip())
-        except PluginNotLoadedError:
-            # When LiSP closes, the plugin gets finalized before the layout.
-            # Thus, it no longer exists at this point.
-            pass
         widget.deleteLater()
 
     def reset(self):
         item = self.layout().takeAt(0)
         while item:
-            self.remove_widget(item.widget())
+            item.widget().deleteLater()
             item = self.layout().takeAt(0)
