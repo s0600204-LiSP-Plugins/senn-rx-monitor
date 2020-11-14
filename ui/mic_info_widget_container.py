@@ -28,6 +28,7 @@ from PyQt5.QtGui import QColor, QPainter
 from PyQt5.QtWidgets import QAction, QDialog, QMenu, QWidget
 
 from lisp.plugins import get_plugin
+from lisp.ui.ui_utils import translate
 
 from .add_receiver_dialog import AddReceiverDialog
 from .qflowlayout import QFlowLayout
@@ -100,10 +101,16 @@ class MicInfoWidgetContainer(QWidget):
 
         if self.mouse_over_widget and isinstance(self.mouse_over_widget, MicInfoWidget):
             self._create_menu_subheader(self.mouse_over_widget.ip())
-            self._create_menu_action('Remove Receiver', self.mouse_over_widget.delete_self)
+            self._create_menu_action(
+                translate('senn_rx_monitor', 'Remove Receiver'),
+                self.mouse_over_widget.delete_self
+            )
             self._menu.addSeparator()
 
-        self._create_menu_action('Add Receiver', self.add_receiver)
+        self._create_menu_action(
+            translate('senn_rx_monitor', 'Add Receiver'),
+            self.add_receiver
+        )
         self._menu.popup(event.globalPos())
 
         self.mouse_over_widget = None

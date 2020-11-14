@@ -32,12 +32,12 @@ from .mic_info_widget_container import MicInfoWidgetContainer
 
 
 class MicInfoLayout(CueLayout):
-    NAME = translate("LayoutName", "Radio Mic Layout")
+    NAME = translate("senn_rx_monitor", "Radio Mic Layout")
     DESCRIPTION = translate(
-        "LayoutDescription", "Monitor Radio Microphones"
+        "senn_rx_monitor", "Monitor Radio Microphones"
     )
     DETAILS = [
-        translate("LayoutDetails", "Useful for monitoring stations"),
+        translate("senn_rx_monitor", "Useful for monitoring stations"),
     ]
 
     def __init__(self, application):

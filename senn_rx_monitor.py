@@ -65,13 +65,15 @@ class SennRxMonitor(Plugin):
         register_layout(MicInfoLayout)
 
         self._dialog = None
-        self._menu_action = QAction(translate('senn_rx_monitor', 'Radio Microphone Rx Status'), self.app.window)
-        self._menu_action_discover = QAction(translate('senn_rx_monitor', 'Discover RF Receivers'), self.app.window)
+        self._menu_action = QAction(self.app.window)
+        self._menu_action_discover = QAction(self.app.window)
 
         self._rx_workers = {}
         self.rx_added = Signal() # ip, worker
         self.rx_moved = Signal() # ip, new_index
         self.rx_removed = Signal() # ip
+
+        self.retranslateUi()
 
     def add_discovered(self, ip):
         if ip in self.app.session.senn_rx:
@@ -92,6 +94,12 @@ class SennRxMonitor(Plugin):
 
     def discover(self):
         self._discovery.discover()
+
+    def retranslateUi(self):
+        self._menu_action.setIconText(
+            translate('senn_rx_monitor', 'Radio Microphone Rx Status'))
+        self._menu_action_discover.setIconText(
+            translate('senn_rx_monitor', 'Discover RF Receivers'))
 
     def rx_worker(self, ip):
         if ip in self._rx_workers:

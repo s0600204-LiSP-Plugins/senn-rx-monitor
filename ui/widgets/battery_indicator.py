@@ -29,6 +29,8 @@ from PyQt5.QtCore import Qt, QRect
 from PyQt5.QtGui import QColor, QPainter, QPainterPath
 from PyQt5.QtWidgets import QWidget
 
+from lisp.ui.ui_utils import translate
+
 class BatteryIndicator(QWidget):
 
     margin = 6
@@ -47,6 +49,12 @@ class BatteryIndicator(QWidget):
         self._segment_border_low_color = QColor(250, 0, 0)
         self._segment_fill_color = QColor(0, 128, 0)
 
+        self._no_battery_msg = ''
+        self.retranslateUi()
+
+    def retranslateUi(self):
+        self._no_battery_msg = translate('senn_rx_monitor', "No Batt. Status")
+
     def paintEvent(self, _):
         # pylint: disable=invalid-name
         height = self.height()
@@ -60,7 +68,7 @@ class BatteryIndicator(QWidget):
         painter.drawRect(QRect(0, 0, width - 1, height - 1))
 
         if self._filled == -1:
-            painter.drawText(0, 0, width, height, Qt.AlignCenter, "No Batt. Status")
+            painter.drawText(0, 0, width, height, Qt.AlignCenter, self._no_battery_msg)
             painter.end()
             return
 

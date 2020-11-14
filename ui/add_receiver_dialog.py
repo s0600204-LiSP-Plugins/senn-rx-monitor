@@ -26,21 +26,21 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QDialog, QDialogButtonBox, QFormLayout, QLabel, QLineEdit
 
+from lisp.ui.ui_utils import translate
+
 class AddReceiverDialog(QDialog):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.setWindowModality(Qt.WindowModal)
-        self.setWindowTitle('Add Receiver')
         self.setLayout(QFormLayout())
 
         self._label = QLabel()
         self._label.setAlignment(Qt.AlignHCenter)
-        self._label.setText('Enter an IP address')
         self.layout().addRow(self._label)
 
         self._ip_text = QLineEdit()
         self._ip_text.setInputMask('000.000.000.000')
-        self.layout().addRow('IP Address:', self._ip_text)
+        self.layout().addRow('-', self._ip_text)
 
         self._buttons = QDialogButtonBox(QDialogButtonBox.Save | QDialogButtonBox.Close)
         self._buttons.accepted.connect(self.validate)
@@ -50,19 +50,31 @@ class AddReceiverDialog(QDialog):
     def ip(self):
         return self._ip_text.text()
 
+    def exec(self):
+        self.retranslateUi()
+        return super().exec()
+
+    def retranslateUi(self):
+        self.setWindowTitle(
+            translate('senn_rx_monitor', 'Add Receiver'))
+        self._label.setText(
+            translate('senn_rx_monitor', 'Enter an IP address'))
+        self.layout().labelForField(self._ip_text).setText(
+            translate('senn_rx_monitor', 'IP Address:'))
+
     def validate(self):
         if not self._ip_text.hasAcceptableInput():
-            self._label.setText('Not a valid IP address')
+            self._label.setText(translate('senn_rx_monitor', 'Not a valid IP address'))
             return
 
         text = self._ip_text.text()
         for part in text.split('.'):
             if not part or int(part) > 255:
-                self._label.setText('Not a valid IP address')
+                self._label.setText(translate('senn_rx_monitor', 'Not a valid IP address'))
                 return
 
         if self.parent().check_exists(text):
-            self._label.setText('Address already in use')
+            self._label.setText(translate('senn_rx_monitor', 'Address already in use'))
             return
 
         self.accept()

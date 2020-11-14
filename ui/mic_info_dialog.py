@@ -28,6 +28,7 @@ from PyQt5.QtWidgets import QDialog, QDialogButtonBox, QPushButton, QSizePolicy,
 
 from lisp.plugins import get_plugin
 from lisp.ui.icons import IconTheme
+from lisp.ui.ui_utils import translate
 
 from .mic_info_widget_container import MicInfoWidgetContainer
 
@@ -36,7 +37,6 @@ class MicInfoDialog(QDialog):
     def __init__(self, server, **kwargs):
         super().__init__(**kwargs)
 
-        self.setWindowTitle('Mic Info')
         self.setLayout(QVBoxLayout())
         self.layout().setContentsMargins(4, 4, 4, 4)
 
@@ -52,7 +52,6 @@ class MicInfoDialog(QDialog):
         self.layout().addWidget(self._container)
 
         self._discover_button = QPushButton()
-        self._discover_button.setText('Network Discover')
         self._discover_button.setIcon(IconTheme.get('system-search'))
         self._discover_button.clicked.connect(get_plugin('SennRxMonitor').discover)
 
@@ -62,8 +61,14 @@ class MicInfoDialog(QDialog):
         self._buttons.rejected.connect(self.reject)
         self.layout().addWidget(self._buttons)
 
+        self.retranslateUi()
+
     def count(self):
         return self._container.count()
 
     def minimumSizeHint(self):
         return self._container.minimumSizeHint()
+
+    def retranslateUi(self):
+        self.setWindowTitle(translate('senn_rx_monitor', 'Mic Info'))
+        self._discover_button.setText(translate('senn_rx_monitor', 'Network Discover'))
