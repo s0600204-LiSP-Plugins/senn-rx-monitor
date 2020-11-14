@@ -20,6 +20,8 @@ This plugin will not work with the following receivers:
 * Any from the *EM G2* range
 * *EM 100 G3*
 * *EM 100 G4*
+* *EM 3731*
+* *EM 3732*
 * *EM 6000*
 * *EM 6000 Dante*
 * *EM 9046*
