@@ -28,6 +28,7 @@ from PyQt5.QtGui import QLinearGradient, QColor, QPainter, QPixmap
 from lisp.ui.widgets import DBMeter
 
 class AFMeter(DBMeter):
+    # pylint: disable=attribute-defined-outside-init
     '''
     AF Meter of the Sennheiser EM 300/500 G3/G4 and EM 2000 receivers.
 
@@ -41,7 +42,6 @@ class AFMeter(DBMeter):
     interpreted lookup/mapping table below.
     '''
 
-    # pylint: disable=bad-whitespace
     peak_map = [
         [ 5, -50],
         [10, -40],
@@ -86,6 +86,7 @@ class AFMeter(DBMeter):
         self.update()
 
 class RFMeter(DBMeter):
+    # pylint: disable=attribute-defined-outside-init
 
     def __init__(self, parent=None):
         super().__init__(parent,

@@ -66,7 +66,6 @@ class DragWidget(QWidget):
         else:
             painter.setPen(self._border_color)
 
-        # pylint: disable=bad-whitespace
         path = QPainterPath()
         path.moveTo(    0,      0)
         path.lineTo(width,      0)

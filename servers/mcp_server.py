@@ -63,7 +63,10 @@ class SennheiserMCPServer(Thread):
 
     def run(self):
         with self._server as server:
-            logger.info("Listening for messages from Sennheiser radio-mic receivers via UDP on port {}".format(PORT))
+            logger.info(
+                "Listening for messages from Sennheiser radio-mic receivers via UDP on port %s",
+                PORT
+            )
             server.serve_forever()
 
     def stop(self):
@@ -81,7 +84,10 @@ class _Server(UDPServer):
 
     def deregister(self, ip):
         if ip not in self._registered:
-            logger.warning("Unable to deregister device on {}, due to not being registered".format(ip))
+            logger.warning(
+                "Unable to deregister device on %s, due to not being registered",
+                ip
+            )
             return False
 
         self._clock.remove_callback(self._registered[ip].run)
@@ -96,7 +102,11 @@ class _Server(UDPServer):
     def register(self, worker):
         ip = worker.ip()
         if ip in self._registered:
-            logging.warning("Unable to register device on {}, due to a device already being registered at this address".format(ip))
+            logging.warning(
+                "Unable to register device on %s, " \
+                "due to a device already being registered at this address",
+                ip
+            )
             return False
 
         self._registered[ip] = worker
@@ -107,8 +117,8 @@ class _Server(UDPServer):
         if target not in self._registered:
             return
 
-        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
-            s.sendto(bytes(message + '\r', 'ascii'), (target, PORT))
+        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
+            sock.sendto(bytes(message + '\r', 'ascii'), (target, PORT))
 
 class SennheiserMCPWorker:
 

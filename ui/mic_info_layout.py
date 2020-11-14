@@ -22,11 +22,14 @@
 # You should have received a copy of the GNU General Public License
 # along with Linux Show Player.  If not, see <http://www.gnu.org/licenses/>.
 
+# pylint: disable=no-self-use
+
 from lisp.layout.cue_layout import CueLayout
 from lisp.plugins import get_plugin
 from lisp.ui.ui_utils import translate
 
 from .mic_info_widget_container import MicInfoWidgetContainer
+
 
 class MicInfoLayout(CueLayout):
     NAME = translate("LayoutName", "Radio Mic Layout")

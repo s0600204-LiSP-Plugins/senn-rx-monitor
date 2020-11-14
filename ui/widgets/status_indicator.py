@@ -128,7 +128,6 @@ class StatusIndicator(QWidget):
         # |‾‾‾‾|
         # |    |
         # |____|
-        # pylint: disable=bad-whitespace
         tx = [
             ['l', tenth * 6,         0, 'm'],
             ['l', tenth * 6, tenth * 4, 'l'],
@@ -153,7 +152,6 @@ class StatusIndicator(QWidget):
         #     ⎠
         angle_start = -60 * 16
         angle_arc = 120 * 16
-        # pylint: disable=bad-whitespace
         rf = [
             ['a', tenth    , tenth * 4, tenth    , tenth * 2, angle_start, angle_arc],
             ['a', tenth * 2, tenth * 3, tenth * 2, tenth * 4, angle_start, angle_arc],
@@ -167,7 +165,6 @@ class StatusIndicator(QWidget):
         #       |  |
         # |‾‾‾‾‾‾‾‾‾‾|
         # |__________|
-        # pylint: disable=bad-whitespace
         rx = [
             ['l', tenth * 6, tenth * 2, 'm'],
             ['l', tenth * 6, tenth * 6, 'l'],

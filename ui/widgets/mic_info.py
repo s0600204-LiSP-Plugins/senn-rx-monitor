@@ -137,7 +137,7 @@ class MicInfoWidget(QWidget):
         self._af_meter.plot([level], [peak])
 
     def set_freq(self, freq):
-        self._label_freq.setText("{}.{} MHz".format(freq[0:3], freq[3:6]))
+        self._label_freq.setText(f"{freq[0:3]}.{freq[3:6]} MHz")
 
     def set_name(self, name):
         self._label_name.setText(name)
