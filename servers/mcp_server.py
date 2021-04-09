@@ -41,10 +41,14 @@ UPDATE_FREQUENCY = 100 # milliseconds
 class _Handler(BaseRequestHandler):
 
     def handle(self):
-        self.server.dispatch(
-            self.client_address[0],
-            str(self.request[0].strip(), 'ascii').split('\r')
-        )
+        # A message from an MCP device will always start with
+        # an uppercase ASCII letter. Thus, ignore anything else.
+        payload = self.request[0].strip()
+        if 64 < payload[0] < 91:
+            self.server.dispatch(
+                self.client_address[0],
+                str(payload, 'ascii').split('\r')
+            )
 
 class SennheiserMCPServer(Thread):
 

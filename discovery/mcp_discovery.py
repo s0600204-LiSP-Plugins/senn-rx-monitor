@@ -99,6 +99,10 @@ DISCOVERY_MSG = bytes(
 class _Handler(BaseRequestHandler):
 
     def handle(self):
+        # A message from an MCP device is expected to reply using the same
+        # port number as the server. Thus, ignore anything from anyone else.
+        if self.client_address[1] != PORT:
+            return
         self.server.handle(
             self.client_address[0]
         )
