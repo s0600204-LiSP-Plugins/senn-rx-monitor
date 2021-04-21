@@ -120,9 +120,7 @@ class _Server(UDPServer):
     def transmit(self, target, message):
         if target not in self._registered:
             return
-
-        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
-            sock.sendto(bytes(message + '\r', 'ascii'), (target, PORT))
+        self.socket.sendto(bytes(message + '\r', 'ascii'), (target, PORT))
 
 class SennheiserMCPWorker:
 
