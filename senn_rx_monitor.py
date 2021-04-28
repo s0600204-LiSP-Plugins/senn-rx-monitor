@@ -108,6 +108,8 @@ class SennRxMonitor(Plugin):
 
     @property
     def rx_list(self):
+        if not self.app.session:
+            return Session.senn_rx.default
         return self.app.session.senn_rx
 
     def finalize(self):
