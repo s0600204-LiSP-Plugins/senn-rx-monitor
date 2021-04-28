@@ -44,8 +44,11 @@ class DragWidget(QWidget):
         self._border_color = QColor(80, 80, 80)
         self._hover_color = QColor(160, 160, 160)
 
-    def mouseMoveEvent(self, _):
+    def mousePressEvent(self, event):
         # pylint: disable=invalid-name
+        if event.button() != Qt.LeftButton:
+            return
+
         mime_data = QMimeData()
         mime_data.setText(DRAG_MAGIC)
 
