@@ -23,8 +23,8 @@
 # along with Linux Show Player.  If not, see <http://www.gnu.org/licenses/>.
 
 # pylint: disable=no-name-in-module
-from PyQt5.QtCore import QLine, QSize
-from PyQt5.QtGui import QColor, QPainter
+from PyQt5.QtCore import QLineF, QSize
+from PyQt5.QtGui import QColor, QPainter, QPen
 from PyQt5.QtWidgets import QAction, QDialog, QMenu, QWidget
 
 from lisp.plugins import get_plugin
@@ -51,7 +51,11 @@ class MicInfoWidgetContainer(QWidget):
         self.setAcceptDrops(True)
         self._dragDropIndex = None
         self._dragDropLine = None
-        self._dragDropLineColor = QColor(160, 160, 160)
+        self._dragDropLinePen = QPen(QColor(160, 160, 160))
+        # The following never changes, so cache it instead of recalculating it
+        # repeatedly during drag-drop operations.
+        self._dragDropLineOffset = \
+            (self.layout().horizontalSpacing() + self._dragDropLinePen.width()) / 2
 
         plugin = get_plugin('SennRxMonitor')
         plugin.rx_added.connect(self.append_widget)
@@ -132,11 +136,18 @@ class MicInfoWidgetContainer(QWidget):
 
         self._dragDropIndex = self.layout().indexOf(child)
         rect = child.rect()
-        line = QLine(
-            child.mapToParent(rect.topRight()),
-            child.mapToParent(rect.bottomRight())
+        placeBefore = child.mapFromParent(pos).x() < rect.width() / 2
+        line = QLineF(
+            child.mapToParent(rect.topLeft() if placeBefore else rect.topRight()),
+            child.mapToParent(rect.bottomLeft() if placeBefore else rect.bottomRight())
         )
-        line.translate(self.layout().horizontalSpacing() / 3 * 2, 0)
+
+        if placeBefore:
+            line.translate(-self._dragDropLineOffset, 0)
+            self._dragDropIndex -= 1
+        else:
+            line.translate(self._dragDropLineOffset, 0)
+
         self._dragDropLine = line
         self.update()
 
@@ -157,7 +168,7 @@ class MicInfoWidgetContainer(QWidget):
         if self._dragDropLine:
             painter = QPainter()
             painter.begin(self)
-            painter.setPen(self._dragDropLineColor)
+            painter.setPen(self._dragDropLinePen)
             painter.drawLine(self._dragDropLine)
             painter.end()
 
