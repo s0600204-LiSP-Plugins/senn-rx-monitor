@@ -66,8 +66,9 @@ class MicInfoWidgetContainer(QWidget):
         for ip in plugin.rx_list:
             self.append_widget(ip, plugin.rx_worker(ip))
 
-    def _create_menu_action(self, caption, slot):
+    def _create_menu_action(self, caption, slot, enabled=True):
         new_action = QAction(caption, parent=self._menu)
+        new_action.setEnabled(enabled)
         new_action.triggered.connect(slot)
         self._menu.addAction(new_action)
 
@@ -109,7 +110,8 @@ class MicInfoWidgetContainer(QWidget):
             self._create_menu_subheader(self.mouse_over_widget.ip())
             self._create_menu_action(
                 translate('senn_rx_monitor', 'Rename Receiver'),
-                self.mouse_over_widget.rename_self
+                self.mouse_over_widget.rename_self,
+                self.mouse_over_widget.is_online
             )
             self._create_menu_action(
                 translate('senn_rx_monitor', 'Remove Receiver'),

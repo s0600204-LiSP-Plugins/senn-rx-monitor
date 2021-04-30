@@ -103,6 +103,10 @@ class MicInfoWidget(QWidget):
         self._af_meter.reset()
         self._rf_levels = [[], []]
 
+    @property
+    def is_online(self):
+        return self._config_num != -1
+
     def contextMenuEvent(self, event):
         self.parent().mouse_over_widget = self
         self.parent().contextMenuEvent(event)
