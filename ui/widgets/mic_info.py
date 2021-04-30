@@ -125,6 +125,11 @@ class MicInfoWidget(QWidget):
         self._rf_levels[0].append(level)
         self._rf_levels[1].append(peak)
 
+    def rename_self(self):
+        new_name = self.parent().request_new_receiver_name(self._label_name.text())
+        if new_name:
+            self._worker.send_rename_request(new_name)
+
     def reset(self):
         self.clear()
         self._label_name.setText("-")

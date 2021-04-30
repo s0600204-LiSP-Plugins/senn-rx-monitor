@@ -32,6 +32,7 @@ from lisp.ui.ui_utils import translate
 
 from .add_receiver_dialog import AddReceiverDialog
 from .qflowlayout import QFlowLayout
+from .rename_receiver_dialog import RenameReceiverDialog
 from .widgets.drag import DRAG_MAGIC
 from .widgets.mic_info import MicInfoWidget
 
@@ -44,6 +45,7 @@ class MicInfoWidgetContainer(QWidget):
         self._size_hint = QSize(1011, 300)
 
         self._add_dialog = None
+        self._rename_dialog = None
         self._server = server
         self._menu = QMenu(self)
         self.mouse_over_widget = None
@@ -105,6 +107,10 @@ class MicInfoWidgetContainer(QWidget):
 
         if self.mouse_over_widget and isinstance(self.mouse_over_widget, MicInfoWidget):
             self._create_menu_subheader(self.mouse_over_widget.ip())
+            self._create_menu_action(
+                translate('senn_rx_monitor', 'Rename Receiver'),
+                self.mouse_over_widget.rename_self
+            )
             self._create_menu_action(
                 translate('senn_rx_monitor', 'Remove Receiver'),
                 self.mouse_over_widget.delete_self
@@ -176,6 +182,15 @@ class MicInfoWidgetContainer(QWidget):
         widget = self._find_widget(ip)
         self.layout().removeWidget(widget)
         widget.deleteLater()
+
+    def request_new_receiver_name(self, old_name):
+        if not self._rename_dialog:
+            self._rename_dialog = RenameReceiverDialog(parent=self)
+
+        self._rename_dialog.setExistingName(old_name)
+        if self._rename_dialog.exec() == QDialog.Accepted:
+            return self._rename_dialog.name()
+        return None
 
     def reset(self):
         item = self.layout().takeAt(0)

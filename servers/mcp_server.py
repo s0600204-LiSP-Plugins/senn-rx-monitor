@@ -183,3 +183,6 @@ class SennheiserMCPWorker:
 
         self.lost_connection.emit()
         self._last_rx = None
+
+    def send_rename_request(self, new_name):
+        self._server.transmit(self._ip, 'Name {}'.format(new_name))
