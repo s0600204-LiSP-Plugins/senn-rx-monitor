@@ -120,7 +120,13 @@ class _Server(UDPServer):
     def transmit(self, target, message):
         if target not in self._registered:
             return
-        self.socket.sendto(bytes(message + '\r', 'ascii'), (target, PORT))
+        try:
+            self.socket.sendto(bytes(message + '\r', 'ascii'), (target, PORT))
+        except OSError as error:
+            # errno 101 == Network unreachable
+            # Anything else: re-throw exception
+            if error.errno != 101:
+                raise error
 
 class SennheiserMCPWorker:
 
