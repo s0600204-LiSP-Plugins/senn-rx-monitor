@@ -146,6 +146,8 @@ class _Server(UDPServer):
         for iface in ni.interfaces():
             try:
                 for addr in ni.ifaddresses(iface)[ni.AF_INET]:
+                    if addr['addr'] == '127.0.0.1':
+                        continue
                     with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
                         sock.bind((addr['addr'], PORT + 1))
                         sock.sendto(DISCOVERY_MSG, (MCAST_IP, PORT))
