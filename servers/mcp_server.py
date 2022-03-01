@@ -124,8 +124,9 @@ class _Server(UDPServer):
             self.socket.sendto(bytes(message + '\r', 'ascii'), (target, PORT))
         except OSError as error:
             # errno 101 == Network unreachable
+            # errno 10051 == Socket operation on an unreachable network (Windows only)
             # Anything else: re-throw exception
-            if error.errno != 101:
+            if error.errno not in [101, 10051]:
                 raise error
 
 class SennheiserMCPWorker:
