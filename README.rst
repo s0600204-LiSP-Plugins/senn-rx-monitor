@@ -45,10 +45,10 @@ Dependencies
 ------------
 
 *Linux Show Player*
-  Specifically, ``v0.6`` with Pull Request #144 merged.
+  Specifically,  version ``0.6`` with Pull Request #144 merged.
 
 `netifaces`_
-  This can be acquired from your distro's package repository, or from PyPI_.
+  A python module that can be acquired from your distro's package repository, or from PyPI_.
 
   And yes I'm aware that, as of May/June 2021, it's no longer maintained.
 
@@ -67,5 +67,5 @@ automatically.
 
 
 .. _Linux Show Player: https://github.com/FrancescoCeruti/linux-show-player
-.. _python-netifaces: https://github.com/al45tair/netifaces
+.. _netifaces: https://github.com/al45tair/netifaces
 .. _PyPI: https://pypi.org/project/netifaces/
