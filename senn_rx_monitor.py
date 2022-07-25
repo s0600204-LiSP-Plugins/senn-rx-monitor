@@ -33,10 +33,10 @@ from lisp.core.signal import Connection, Signal
 from lisp.layout import register_layout
 from lisp.ui.ui_utils import translate
 
-from senn_rx_monitor.discovery.mcp_discovery import SennheiserMCPDiscovery
-from senn_rx_monitor.servers.mcp_server import SennheiserMCPServer
-from senn_rx_monitor.ui.mic_info_dialog import MicInfoDialog
-from senn_rx_monitor.ui.mic_info_layout import MicInfoLayout
+from senn_rx_monitor.mic_rx_monitor.discovery.mcp_discovery import SennheiserMCPDiscovery
+from senn_rx_monitor.mic_rx_monitor.servers.mcp_server import SennheiserMCPServer
+from senn_rx_monitor.mic_rx_monitor.ui.mic_info_dialog import MicInfoDialog
+from senn_rx_monitor.mic_rx_monitor.ui.mic_info_layout import MicInfoLayout
 
 logger = logging.getLogger(__name__) # pylint: disable=invalid-name
 
