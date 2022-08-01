@@ -7,7 +7,6 @@ from PyQt5.QtWidgets import (
     QStatusBar,
     QVBoxLayout,
     QWidget,
-    QHBoxLayout,
 )
 
 from mic_rx_monitor import APP_NAME
@@ -16,6 +15,7 @@ from mic_rx_monitor.i18n import translate
 from .menus.about_menu import AboutMenu
 from .menus.edit_menu import EditMenu
 from .menus.file_menu import FileMenu
+from .mic_info_widget_container import MicInfoWidgetContainer
 
 class MainWindow(QMainWindow):
 
@@ -23,8 +23,7 @@ class MainWindow(QMainWindow):
         super().__init__(**kwargs)
 
         self.setMinimumSize(640, 480)
-        self.setCentralWidget(QWidget())
-        self.centralWidget().setLayout(QHBoxLayout())
+        self.setCentralWidget(MicInfoWidgetContainer(application.core))
         self.centralWidget().layout().setContentsMargins(4, 4, 4, 4)
 
         self._application = application
