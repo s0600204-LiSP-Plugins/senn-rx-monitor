@@ -1,8 +1,15 @@
 
 from lisp.core.signal import Connection, Signal
 
-from senn_rx_monitor.mic_rx_monitor.discovery.mcp_discovery import SennheiserMCPDiscovery
-from senn_rx_monitor.mic_rx_monitor.servers.mcp_server import SennheiserMCPServer
+try:
+    # When accessed as a plugin
+    from senn_rx_monitor.mic_rx_monitor.discovery.mcp_discovery import SennheiserMCPDiscovery
+    from senn_rx_monitor.mic_rx_monitor.servers.mcp_server import SennheiserMCPServer
+except ImportError:
+    # And as a stand-alone program
+    from mic_rx_monitor.discovery.mcp_discovery import SennheiserMCPDiscovery
+    from mic_rx_monitor.servers.mcp_server import SennheiserMCPServer
+
 
 class MicMonitorCore:
 

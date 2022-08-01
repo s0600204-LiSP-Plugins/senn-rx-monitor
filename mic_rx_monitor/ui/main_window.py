@@ -19,13 +19,15 @@ from .menus.file_menu import FileMenu
 
 class MainWindow(QMainWindow):
 
-    def __init__(self, **kwargs):
+    def __init__(self, application, **kwargs):
         super().__init__(**kwargs)
 
         self.setMinimumSize(640, 480)
         self.setCentralWidget(QWidget())
         self.centralWidget().setLayout(QHBoxLayout())
         self.centralWidget().layout().setContentsMargins(4, 4, 4, 4)
+
+        self._application = application
 
         # Menu Bar
         self.menubar = QMenuBar(self)
