@@ -30,9 +30,9 @@ class MainWindow(QMainWindow):
         # Menu Bar
         self.menubar = QMenuBar(self)
 
-        self.menuFile = FileMenu(self.menubar)
-        self.menuEdit = EditMenu(self.menubar)
-        self.menuAbout = AboutMenu(self.menubar)
+        self.menuFile = FileMenu(self)
+        self.menuEdit = EditMenu(self)
+        self.menuAbout = AboutMenu(self)
 
         self.menubar.addMenu(self.menuFile)
         self.menubar.addMenu(self.menuEdit)

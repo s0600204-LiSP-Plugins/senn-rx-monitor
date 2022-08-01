@@ -1,14 +1,12 @@
 
 from PyQt5.QtGui import QKeySequence
-from PyQt5.QtWidgets import (
-    QMenuBar,
-    QMenu,
-    QAction,
-)
+from PyQt5.QtWidgets import QAction
 
-from ...i18n import translate
+from mic_rx_monitor.i18n import translate
+from .menu import ApplicationMenu
 
-class EditMenu(QMenu):
+
+class EditMenu(ApplicationMenu):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
