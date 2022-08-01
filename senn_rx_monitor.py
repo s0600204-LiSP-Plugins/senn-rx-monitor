@@ -20,6 +20,10 @@
 # You should have received a copy of the GNU General Public License
 # along with Linux Show Player.  If not, see <http://www.gnu.org/licenses/>.
 
+'''
+This file is used only by the LiSP Plugin.
+'''
+
 import logging
 
 # pylint: disable=no-name-in-module
@@ -29,12 +33,10 @@ from PyQt5.QtWidgets import QAction
 from lisp.core.has_properties import Property
 from lisp.core.plugin import Plugin
 from lisp.core.session import Session
-from lisp.core.signal import Connection, Signal
 from lisp.layout import register_layout
 from lisp.ui.ui_utils import translate
 
-from senn_rx_monitor.mic_rx_monitor.discovery.mcp_discovery import SennheiserMCPDiscovery
-from senn_rx_monitor.mic_rx_monitor.servers.mcp_server import SennheiserMCPServer
+from senn_rx_monitor.mic_rx_monitor.core import MicMonitorCore
 from senn_rx_monitor.mic_rx_monitor.ui.mic_info_dialog import MicInfoDialog
 from senn_rx_monitor.mic_rx_monitor.ui.mic_info_layout import MicInfoLayout
 
@@ -52,12 +54,10 @@ class SennRxMonitor(Plugin):
     def __init__(self, app):
         super().__init__(app)
 
-        self._server = SennheiserMCPServer()
-        self._server.start()
-
-        self._discovery = SennheiserMCPDiscovery()
-        self._discovery.start()
-        self._discovery.discovered.connect(self.add_discovered, Connection.QtQueued)
+        self._core = MicMonitorCore()
+        self._core.rx_added.connect(self.store_rx)
+        self._core.rx_moved.connect(self.reorder_rx)
+        self._core.rx_removed.connect(self.unstore_rx)
 
         MicInfoLayout.Config = SennRxMonitor.Config
         register_layout(MicInfoLayout)
@@ -66,57 +66,11 @@ class SennRxMonitor(Plugin):
         self._menu_action = QAction(self.app.window)
         self._menu_action_discover = QAction(self.app.window)
 
-        self._rx_workers = {}
-        self.rx_added = Signal() # ip, worker
-        self.rx_moved = Signal() # ip, new_index
-        self.rx_removed = Signal() # ip
-
         self.retranslateUi()
 
-    def add_discovered(self, ip):
-        if ip in self.app.session.senn_rx:
-            return
-        self.append_rx(ip)
-
-    def append_rx(self, ip):
-        if ip in self._rx_workers:
-            return
-
-        if ip not in self.app.session.senn_rx:
-            self.app.session.senn_rx.append(ip)
-
-        worker = self._server.request_new_worker(ip)
-        self._rx_workers[ip] = worker
-        self._server.register(worker)
-        self.rx_added.emit(ip, worker)
-
-    def discover(self):
-        self._discovery.discover()
-
-    def retranslateUi(self):
-        self._menu_action.setIconText(
-            translate('senn_rx_monitor', 'Radio Microphone Rx Status'))
-        self._menu_action_discover.setIconText(
-            translate('senn_rx_monitor', 'Discover RF Receivers'))
-
-    def rx_worker(self, ip):
-        if ip in self._rx_workers:
-            return self._rx_workers[ip]
-        return None
-
     @property
-    def rx_list(self):
-        if not self.app.session:
-            return Session.senn_rx.default
-        return self.app.session.senn_rx
-
-    def finalize(self):
-        self.terminate()
-
-    def _open_dialog(self):
-        if not self._dialog:
-            self._dialog = MicInfoDialog(self._server)
-        self._dialog.open()
+    def core(self):
+        return self._core
 
     def _pre_session_deinitialisation(self, _):
         '''Called when session is being de-init'd.'''
@@ -133,12 +87,7 @@ class SennRxMonitor(Plugin):
         if self._dialog:
             self._dialog.close()
 
-        try:
-            while True:
-                ip = self.app.session.senn_rx[0]
-                self.remove_rx(ip)
-        except IndexError:
-            pass
+        self._core.reset()
 
     def _on_session_initialised(self, _):
         """Post-session-initialisation init.
@@ -152,31 +101,35 @@ class SennRxMonitor(Plugin):
             self.app.window.menubar.removeAction(
                 self.app.window.menuEdit.menuAction()
             )
-            self._menu_action_discover.triggered.connect(self.discover)
+            self._menu_action_discover.triggered.connect(self._core.discover)
             self.app.window.menuTools.addAction(self._menu_action_discover)
         else:
             self._menu_action.triggered.connect(self._open_dialog)
             self.app.window.menuTools.addAction(self._menu_action)
 
-        for ip in self.app.session.senn_rx:
-            self.append_rx(ip)
+        self._core.load(self.app.session.senn_rx)
 
-    def move_rx(self, ip, new_index):
+    def finalize(self):
+        self._core.terminate()
+
+    def retranslateUi(self):
+        self._menu_action.setIconText(
+            translate('senn_rx_monitor', 'Radio Microphone Rx Status'))
+        self._menu_action_discover.setIconText(
+            translate('senn_rx_monitor', 'Discover RF Receivers'))
+
+    def reorder_rx(self, ip, new_index):
         self.app.session.senn_rx.remove(ip)
         self.app.session.senn_rx.insert(new_index, ip)
-        self.rx_moved.emit(ip, new_index)
 
-    def remove_rx(self, ip):
-        if ip not in self._rx_workers:
-            return
+    def store_rx(self, ip, _):
+        if ip not in self.app.session.senn_rx:
+            self.app.session.senn_rx.append(ip)
 
-        self._server.deregister(ip)
+    def unstore_rx(self, ip):
         self.app.session.senn_rx.remove(ip)
-        self.rx_removed.emit(ip)
-        del self._rx_workers[ip]
 
-    def server(self):
-        return self._server
-
-    def terminate(self):
-        self._server.stop()
+    def _open_dialog(self):
+        if not self._dialog:
+            self._dialog = MicInfoDialog()
+        self._dialog.open()

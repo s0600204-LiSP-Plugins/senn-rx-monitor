@@ -37,14 +37,14 @@ from .widgets.mic_info import MicInfoWidget
 
 class MicInfoWidgetContainer(QWidget):
 
-    def __init__(self, server):
+    def __init__(self, monitor_core):
         super().__init__()
         self.setLayout(QFlowLayout(margin=4))
         self._size_hint = QSize(1011, 300)
 
         self._add_dialog = None
+        self._core = monitor_core
         self._rename_dialog = None
-        self._server = server
         self._menu = QMenu(self)
         self.mouse_over_widget = None
 
@@ -57,12 +57,11 @@ class MicInfoWidgetContainer(QWidget):
         self._dragDropLineOffset = \
             (self.layout().horizontalSpacing() + self._dragDropLinePen.width()) / 2
 
-        plugin = get_plugin('SennRxMonitor')
-        plugin.rx_added.connect(self.append_widget)
-        plugin.rx_removed.connect(self.remove_widget)
+        self._core.rx_added.connect(self.append_widget)
+        self._core.rx_removed.connect(self.remove_widget)
 
-        for ip in plugin.rx_list:
-            self.append_widget(ip, plugin.rx_worker(ip))
+        for ip in self._core.rx_list:
+            self.append_widget(ip, self._core.rx_worker(ip))
 
     def _create_menu_action(self, caption, slot, enabled=True):
         new_action = QAction(caption, parent=self._menu)
@@ -89,14 +88,14 @@ class MicInfoWidgetContainer(QWidget):
             self._add_dialog = AddReceiverDialog(parent=self)
 
         if self._add_dialog.exec() == QDialog.Accepted:
-            get_plugin('SennRxMonitor').append_rx(self._add_dialog.ip())
+            self._core.append_rx(self._add_dialog.ip())
 
     def append_widget(self, _, worker):
-        widget = MicInfoWidget(worker)
+        widget = MicInfoWidget(worker, self._core)
         self.layout().addWidget(widget)
 
     def check_exists(self, ip):
-        return ip in get_plugin('SennRxMonitor').rx_list
+        return ip in self._core.rx_list
 
     def count(self):
         return self.layout().count()
@@ -162,7 +161,7 @@ class MicInfoWidgetContainer(QWidget):
         new_index = self.layout().moveWidget(dropped, self._dragDropIndex)
         self._dragDropLine = None
         self._dragDropIndex = None
-        get_plugin('SennRxMonitor').move_rx(dropped.ip(), new_index)
+        self._core.move_rx(dropped.ip(), new_index)
 
     def minimumSize(self):
         return self.layout().minimumSize()

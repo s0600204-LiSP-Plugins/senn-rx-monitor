@@ -20,6 +20,10 @@
 # You should have received a copy of the GNU General Public License
 # along with Linux Show Player.  If not, see <http://www.gnu.org/licenses/>.
 
+'''
+This file is used only by the LiSP Plugin.
+'''
+
 # pylint: disable=no-name-in-module
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QDialog, QDialogButtonBox, QPushButton, QSizePolicy, QVBoxLayout
@@ -32,7 +36,7 @@ from .mic_info_widget_container import MicInfoWidgetContainer
 
 class MicInfoDialog(QDialog):
 
-    def __init__(self, server, **kwargs):
+    def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
         self.setLayout(QVBoxLayout())
@@ -45,13 +49,14 @@ class MicInfoDialog(QDialog):
         flags |= Qt.WindowMinMaxButtonsHint
         self.setWindowFlags(flags)
 
-        self._container = MicInfoWidgetContainer(server)
+        monitor_core = get_plugin('SennRxMonitor').core
+        self._container = MicInfoWidgetContainer(monitor_core)
         self._container.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
         self.layout().addWidget(self._container)
 
         self._discover_button = QPushButton()
         self._discover_button.setIcon(IconTheme.get('system-search'))
-        self._discover_button.clicked.connect(get_plugin('SennRxMonitor').discover)
+        self._discover_button.clicked.connect(monitor_core.discover)
 
         self._buttons = QDialogButtonBox()
         self._buttons.addButton(self._discover_button, QDialogButtonBox.ActionRole)

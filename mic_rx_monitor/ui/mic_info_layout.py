@@ -22,6 +22,10 @@
 
 # pylint: disable=no-self-use
 
+'''
+This file is used only by the LiSP Plugin.
+'''
+
 from lisp.layout.cue_layout import CueLayout
 from lisp.plugins import get_plugin
 from lisp.ui.ui_utils import translate
@@ -41,8 +45,8 @@ class MicInfoLayout(CueLayout):
     def __init__(self, application):
         super().__init__(application)
 
-        server = get_plugin('SennRxMonitor').server()
-        self._container = MicInfoWidgetContainer(server)
+        core = get_plugin('SennRxMonitor').core
+        self._container = MicInfoWidgetContainer(core)
 
     def cue_at(self, *_):
         raise IndexError("Layout does not support cues")
