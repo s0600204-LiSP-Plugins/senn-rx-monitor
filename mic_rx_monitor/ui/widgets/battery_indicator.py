@@ -27,7 +27,10 @@ from PyQt5.QtCore import Qt, QRect
 from PyQt5.QtGui import QColor, QPainter, QPainterPath
 from PyQt5.QtWidgets import QWidget
 
-from lisp.ui.ui_utils import translate
+try:
+    from lisp.ui.ui_utils import translate
+except ImportError:
+    from mic_rx_monitor.i18n import translate
 
 class BatteryIndicator(QWidget):
 

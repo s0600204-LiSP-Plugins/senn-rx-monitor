@@ -25,8 +25,10 @@ from PyQt5.QtCore import QLineF, QSize
 from PyQt5.QtGui import QColor, QPainter, QPen
 from PyQt5.QtWidgets import QAction, QDialog, QMenu, QWidget
 
-from lisp.plugins import get_plugin
-from lisp.ui.ui_utils import translate
+try:
+    from lisp.ui.ui_utils import translate
+except ImportError:
+    from mic_rx_monitor.i18n import translate
 
 from .add_receiver_dialog import AddReceiverDialog
 from .qflowlayout import QFlowLayout

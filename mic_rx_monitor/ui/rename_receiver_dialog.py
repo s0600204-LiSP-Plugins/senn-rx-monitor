@@ -24,7 +24,10 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QDialog, QDialogButtonBox, QFormLayout, QLabel, QLineEdit
 
-from lisp.ui.ui_utils import translate
+try:
+    from lisp.ui.ui_utils import translate
+except ImportError:
+    from mic_rx_monitor.i18n import translate
 
 class RenameReceiverDialog(QDialog):
     def __init__(self, **kwargs):
