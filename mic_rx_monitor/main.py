@@ -1,9 +1,14 @@
 
+from os import path
 import signal
 import sys
 
 from PyQt5.QtCore import QTimer
 from PyQt5.QtWidgets import QApplication
+
+# Append vendored code to module path
+# This is so we don't have to `try [...] except ImportError` code vendored from LiSP
+sys.path.insert(1, path.join(path.dirname(__file__), '_vendor'))
 
 from . import APP_NAME
 from .application import Application
