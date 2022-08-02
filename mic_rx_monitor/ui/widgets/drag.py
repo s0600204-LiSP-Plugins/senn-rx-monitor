@@ -22,10 +22,13 @@
 
 # pylint: disable=no-name-in-module
 from PyQt5.QtCore import QMimeData, Qt
-from PyQt5.QtGui import QColor, QDrag, QPainter, QPainterPath
+from PyQt5.QtGui import QDrag, QPainter, QPainterPath
 from PyQt5.QtWidgets import QWidget
 
+from ..colors import Colors
+
 DRAG_MAGIC = 'RF_Drag&Drop'
+
 
 class DragWidget(QWidget):
 
@@ -38,9 +41,6 @@ class DragWidget(QWidget):
         self.setMinimumHeight(height)
         self.setMaximumHeight(height)
         self._segments = []
-
-        self._border_color = QColor(80, 80, 80)
-        self._hover_color = QColor(160, 160, 160)
 
     def mousePressEvent(self, event):
         # pylint: disable=invalid-name
@@ -63,9 +63,9 @@ class DragWidget(QWidget):
         painter.begin(self)
 
         if self.underMouse():
-            painter.setPen(self._hover_color)
+            painter.setPen(Colors.line(self, Colors.State.HOVER))
         else:
-            painter.setPen(self._border_color)
+            painter.setPen(Colors.line(self, Colors.State.NORMAL))
 
         path = QPainterPath()
         path.moveTo(    0,      0)

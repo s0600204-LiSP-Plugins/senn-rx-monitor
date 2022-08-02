@@ -21,3 +21,7 @@ Differences to upstream:
 * ``lisp.ui.widgets.__init__``
 
   - Reduced to only include the class we vendor
+
+* ``lisp.ui.widgets.dbmeter``
+
+  - Altered to use the palette that Qt5 derives from a theme's stylesheet

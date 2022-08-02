@@ -56,8 +56,6 @@ class DBMeter(QWidget):
         self.scale = scale
         self.unit = unit
 
-        self.backgroundColor = QColor(32, 32, 32)
-        self.borderColor = QColor(80, 80, 80)
         self.clippingColor = QColor(220, 50, 50)
 
         self._currentSmoothing = self.valueSmoothing
@@ -162,7 +160,7 @@ class DBMeter(QWidget):
 
         painter = QPainter()
         painter.begin(self)
-        painter.setBrush(self.backgroundColor)
+        painter.setBrush(self.palette().window().color())
 
         # Calculate the meter size (per single channel)
         usableWidth = width - self._scale_width
@@ -175,7 +173,7 @@ class DBMeter(QWidget):
             if self.clipping.get(n, False):
                 painter.setPen(self.clippingColor)
             else:
-                painter.setPen(self.borderColor)
+                painter.setPen(self.palette().shadow().color())
 
             painter.drawRect(meterRect)
 

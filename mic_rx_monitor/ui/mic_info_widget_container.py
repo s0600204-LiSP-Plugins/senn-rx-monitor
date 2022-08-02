@@ -22,7 +22,7 @@
 
 # pylint: disable=no-name-in-module
 from PyQt5.QtCore import QLineF, QSize
-from PyQt5.QtGui import QColor, QPainter, QPen
+from PyQt5.QtGui import QPainter, QPen
 from PyQt5.QtWidgets import QAction, QDialog, QMenu, QWidget
 
 try:
@@ -31,6 +31,7 @@ except ImportError:
     from mic_rx_monitor.i18n import translate
 
 from .add_receiver_dialog import AddReceiverDialog
+from .colors import Colors
 from .qflowlayout import QFlowLayout
 from .rename_receiver_dialog import RenameReceiverDialog
 from .widgets.drag import DRAG_MAGIC
@@ -53,11 +54,10 @@ class MicInfoWidgetContainer(QWidget):
         self.setAcceptDrops(True)
         self._dragDropIndex = None
         self._dragDropLine = None
-        self._dragDropLinePen = QPen(QColor(160, 160, 160))
         # The following never changes, so cache it instead of recalculating it
         # repeatedly during drag-drop operations.
         self._dragDropLineOffset = \
-            (self.layout().horizontalSpacing() + self._dragDropLinePen.width()) / 2
+            (self.layout().horizontalSpacing() + QPen().width()) / 2
 
         self._core.rx_added.connect(self.append_widget)
         self._core.rx_removed.connect(self.remove_widget)
@@ -175,7 +175,7 @@ class MicInfoWidgetContainer(QWidget):
         if self._dragDropLine:
             painter = QPainter()
             painter.begin(self)
-            painter.setPen(self._dragDropLinePen)
+            painter.setPen(Colors.line(self))
             painter.drawLine(self._dragDropLine)
             painter.end()
 

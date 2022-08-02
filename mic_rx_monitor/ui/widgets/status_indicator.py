@@ -22,8 +22,11 @@
 
 # pylint: disable=no-name-in-module
 from PyQt5.QtCore import QRectF
-from PyQt5.QtGui import QColor, QPainter, QPainterPath
+from PyQt5.QtGui import QPainter, QPainterPath
 from PyQt5.QtWidgets import QWidget
+
+from ..colors import Colors
+
 
 class StatusIndicator(QWidget):
 
@@ -40,26 +43,21 @@ class StatusIndicator(QWidget):
             'rx': -1,
         }
 
-        self._background_color = QColor(32, 32, 32)
-        self._error_color = QColor(255, 0, 0)
-        self._ok_color = QColor(0, 160, 0)
-        self._noinfo_color = QColor(80, 80, 80)
-
     def paintEvent(self, _):
         # pylint: disable=invalid-name
         painter = QPainter()
         painter.begin(self)
         painter.setRenderHint(QPainter.Antialiasing, True)
-        painter.setBrush(self._background_color)
+        painter.setBrush(Colors.fill(self))
 
         for name, symbol in self._symbols.items():
 
             if self._statuses[name] == -1:
-                painter.setPen(self._noinfo_color)
+                painter.setPen(Colors.line(self))
             elif self._statuses[name] == 0:
-                painter.setPen(self._ok_color)
+                painter.setPen(Colors.ok(self))
             elif self._statuses[name] == 1:
-                painter.setPen(self._error_color)
+                painter.setPen(Colors.error(self))
 
             path = QPainterPath()
             for point in symbol:

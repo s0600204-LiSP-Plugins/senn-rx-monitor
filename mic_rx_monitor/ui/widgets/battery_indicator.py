@@ -24,13 +24,16 @@ import copy
 
 # pylint: disable=no-name-in-module
 from PyQt5.QtCore import Qt, QRect
-from PyQt5.QtGui import QColor, QPainter, QPainterPath
+from PyQt5.QtGui import QPainter, QPainterPath
 from PyQt5.QtWidgets import QWidget
 
 try:
     from lisp.ui.ui_utils import translate
 except ImportError:
     from mic_rx_monitor.i18n import translate
+
+from ..colors import Colors
+
 
 class BatteryIndicator(QWidget):
 
@@ -43,12 +46,6 @@ class BatteryIndicator(QWidget):
         self._segments = []
         self._filled = -1
         self._segment_count = 3
-
-        self._background_color = QColor(32, 32, 32)
-        self._border_color = QColor(80, 80, 80)
-        self._segment_border_color = QColor(0, 192, 0)
-        self._segment_border_low_color = QColor(250, 0, 0)
-        self._segment_fill_color = QColor(0, 128, 0)
 
         self._no_battery_msg = ''
         self.retranslateUi()
@@ -64,8 +61,8 @@ class BatteryIndicator(QWidget):
         painter = QPainter()
         painter.begin(self)
 
-        painter.setBrush(self._background_color)
-        painter.setPen(self._border_color)
+        painter.setBrush(Colors.background(self))
+        painter.setPen(Colors.line(self))
         painter.drawRect(QRect(0, 0, width - 1, height - 1))
 
         if self._filled == -1:
@@ -75,9 +72,9 @@ class BatteryIndicator(QWidget):
 
         painter.setRenderHint(QPainter.Antialiasing, True)
         if self._filled == 0:
-            painter.setPen(self._segment_border_low_color)
+            painter.setPen(Colors.error(self))
         else:
-            painter.setPen(self._segment_border_color)
+            painter.setPen(Colors.ok(self))
 
         for seg_num, segment in enumerate(self._segments):
             path = QPainterPath()
@@ -88,9 +85,10 @@ class BatteryIndicator(QWidget):
                     path.lineTo(*point)
             path.closeSubpath()
             if seg_num < self._filled:
-                painter.setBrush(self._segment_fill_color)
+                painter.setBrush(Colors.ok(self))
             else:
-                painter.setBrush(self._background_color)
+                painter.setBrush(Colors.background(self))
+
             painter.drawPath(path)
 
         painter.end()

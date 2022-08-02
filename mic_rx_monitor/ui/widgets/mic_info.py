@@ -22,11 +22,12 @@
 
 # pylint: disable=no-name-in-module
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QColor, QPainter
+from PyQt5.QtGui import QPainter
 from PyQt5.QtWidgets import QGridLayout, QLabel, QWidget
 
 from lisp.core.signal import Connection
 
+from ..colors import Colors
 from .battery_indicator import BatteryIndicator
 from .drag import DragWidget
 from .meters import AFMeter, RFMeter
@@ -42,7 +43,6 @@ class MicInfoWidget(QWidget):
         self._worker = worker
         self._core = monitor_core
 
-        self._border_color = QColor(80, 80, 80)
         self.setMinimumSize(120, 300)
         self.setMaximumWidth(120)
 
@@ -119,7 +119,7 @@ class MicInfoWidget(QWidget):
         # pylint: disable=invalid-name
         painter = QPainter()
         painter.begin(self)
-        painter.setPen(self._border_color)
+        painter.setPen(Colors.line(self))
         painter.drawRect(0, 0, self.width() - 1, self.height() - 1)
         painter.end()
 

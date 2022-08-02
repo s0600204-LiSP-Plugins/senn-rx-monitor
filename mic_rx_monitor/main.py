@@ -6,6 +6,8 @@ import sys
 from PyQt5.QtCore import QTimer
 from PyQt5.QtWidgets import QApplication
 
+import qdarkstyle
+
 # Append vendored code to module path
 # This is so we don't have to `try [...] except ImportError` code vendored from LiSP
 sys.path.insert(1, path.join(path.dirname(__file__), '_vendor'))
@@ -18,6 +20,8 @@ def main():
     qt_app = QApplication(sys.argv)
     qt_app.setApplicationName(APP_NAME)
     qt_app.setQuitOnLastWindowClosed(True)
+
+    qt_app.setStyleSheet(qdarkstyle.load_stylesheet(qt_api='pyqt5'))
 
     # Handle SIGTERM and SIGINT by quitting the QApplication
     def handle_quit_signal(*_):
