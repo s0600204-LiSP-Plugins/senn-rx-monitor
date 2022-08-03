@@ -56,6 +56,9 @@ class MicMonitorCore:
     def discover(self):
         self._discovery.discover()
 
+    def exists(self, ip):
+        return ip in self._rx_workers
+
     def load(self, rxs):
         for ip in rxs:
             self.append_rx(ip)

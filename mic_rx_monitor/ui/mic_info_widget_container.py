@@ -97,7 +97,7 @@ class MicInfoWidgetContainer(QWidget):
         self.layout().addWidget(widget)
 
     def check_exists(self, ip):
-        return ip in self._core.rx_list
+        return self._core.exists(ip)
 
     def count(self):
         return self.layout().count()
