@@ -31,7 +31,13 @@ class MicMonitorCore:
 
     @property
     def rx_list(self):
-        return tuple(self._rx_ips)
+        lst = []
+        for ip in self._rx_ips:
+            lst.append({
+                "ip": ip,
+                "proto": self._rx_workers[ip].proto,
+            })
+        return lst
 
     @property
     def server(self):
@@ -61,9 +67,13 @@ class MicMonitorCore:
     def exists(self, ip):
         return ip in self._rx_workers
 
-    def load(self, rxs):
-        for ip in rxs:
-            self.append_rx(ip)
+    def load(self, rx_list):
+        for rx in rx_list:
+            if isinstance(rx, str):
+                # Backwards compatibility with old LiSP showfiles
+                self.append_rx(rx)
+            else:
+                self.append_rx(rx['ip'])
 
     def reset(self):
         try:

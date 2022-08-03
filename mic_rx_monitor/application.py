@@ -1,7 +1,6 @@
 
 from .core import MicMonitorCore
 from .file_io import (
-    create_blank_config,
     load_config_file,
     save_config_file,
 )
@@ -14,11 +13,10 @@ class Application:
         self._monitor_core = MicMonitorCore()
         self._mainwindow = MainWindow(self)
 
+        self._config = None
         self.load_config()
 
-        self._monitor_core.rx_added.connect(self.save_config)
-        self._monitor_core.rx_moved.connect(self.save_config)
-        self._monitor_core.rx_removed.connect(self.save_config)
+        self._monitor_core.list_updated.connect(self.save_rx_list)
 
     @property
     def core(self):
@@ -28,15 +26,9 @@ class Application:
         self._mainwindow.show()
 
     def load_config(self):
-        config = load_config_file()
-        for rx in config['rx']:
-            self._monitor_core.append_rx(rx['ip'])
+        self._config = load_config_file()
+        self._monitor_core.load(self._config['rx'])
 
-    def save_config(self, *_):
-        config = create_blank_config()
-        for rx in self._monitor_core.rx_list:
-            config['rx'].append({
-                "ip": rx,
-                "proto": "mcp",
-            })
-        save_config_file(config)
+    def save_rx_list(self, rx_list):
+        self._config['rx'] = rx_list
+        save_config_file(self._config)

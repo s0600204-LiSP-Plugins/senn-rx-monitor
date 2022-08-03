@@ -129,6 +129,8 @@ class _Server(UDPServer):
 
 class SennheiserMCPWorker:
 
+    proto = 'mcp'
+
     def __init__(self, server, ip):
         self._ip = ip
         self._server = server

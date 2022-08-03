@@ -62,8 +62,8 @@ class MicInfoWidgetContainer(QWidget):
         self._core.rx_added.connect(self.append_widget)
         self._core.rx_removed.connect(self.remove_widget)
 
-        for ip in self._core.rx_list:
-            self.append_widget(ip, self._core.rx_worker(ip))
+        for rx in self._core.rx_list:
+            self.append_widget(rx['ip'], self._core.rx_worker(rx['ip']))
 
     def _create_menu_action(self, caption, slot, enabled=True):
         new_action = QAction(caption, parent=self._menu)
