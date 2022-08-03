@@ -27,6 +27,7 @@ class MicMonitorCore:
         self.rx_added = Signal() # ip, worker
         self.rx_moved = Signal() # ip, new_index
         self.rx_removed = Signal() # ip
+        self.list_updated = Signal() # rx_list
 
     @property
     def rx_list(self):
@@ -52,6 +53,7 @@ class MicMonitorCore:
         self._rx_workers[ip] = worker
         self._server.register(worker)
         self.rx_added.emit(ip, worker)
+        self.list_updated.emit(self.rx_list)
 
     def discover(self):
         self._discovery.discover()
@@ -75,6 +77,7 @@ class MicMonitorCore:
         self._rx_ips.remove(ip)
         self._rx_ips.insert(new_index, ip)
         self.rx_moved.emit(ip, new_index)
+        self.list_updated.emit(self.rx_list)
 
     def remove_rx(self, ip):
         if ip not in self._rx_workers:
@@ -83,6 +86,7 @@ class MicMonitorCore:
         self._server.deregister(ip)
         self._rx_ips.remove(ip)
         self.rx_removed.emit(ip)
+        self.list_updated.emit(self.rx_list)
         del self._rx_workers[ip]
 
     def rx_worker(self, ip):

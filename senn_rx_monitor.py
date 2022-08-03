@@ -55,9 +55,7 @@ class SennRxMonitor(Plugin):
         super().__init__(app)
 
         self._core = MicMonitorCore()
-        self._core.rx_added.connect(self.store_rx)
-        self._core.rx_moved.connect(self.reorder_rx)
-        self._core.rx_removed.connect(self.unstore_rx)
+        self._core.list_updated.connect(self.update_rx)
 
         MicInfoLayout.Config = SennRxMonitor.Config
         register_layout(MicInfoLayout)
@@ -118,16 +116,8 @@ class SennRxMonitor(Plugin):
         self._menu_action_discover.setIconText(
             translate('senn_rx_monitor', 'Discover RF Receivers'))
 
-    def reorder_rx(self, ip, new_index):
-        self.app.session.senn_rx.remove(ip)
-        self.app.session.senn_rx.insert(new_index, ip)
-
-    def store_rx(self, ip, _):
-        if ip not in self.app.session.senn_rx:
-            self.app.session.senn_rx.append(ip)
-
-    def unstore_rx(self, ip):
-        self.app.session.senn_rx.remove(ip)
+    def update_rx(self, rx_list):
+        self.app.session.senn_rx = rx_list
 
     def _open_dialog(self):
         if not self._dialog:
