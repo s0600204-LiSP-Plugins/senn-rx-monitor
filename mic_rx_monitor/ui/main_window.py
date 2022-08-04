@@ -19,6 +19,8 @@ from .mic_info_widget_container import MicInfoWidgetContainer
 
 class MainWindow(QMainWindow):
 
+    STATUSBAR_MSG_DURATION = 3000 # ms
+
     def __init__(self, application, **kwargs):
         super().__init__(**kwargs)
 
@@ -40,10 +42,24 @@ class MainWindow(QMainWindow):
         self.menubar.addMenu(self.menuAbout)
         self.setMenuBar(self.menubar)
 
-        # Status Bar
-        self.setStatusBar(QStatusBar(self))
+        # Listeners to show messages on Status Bar
+        application.core.rx_added.connect(self.on_rx_added)
+        application.core.rx_moved.connect(self.on_rx_moved)
+        application.core.rx_removed.connect(self.on_rx_removed)
 
         self.retranslateUi()
+
+    def on_rx_added(self, ip, _):
+        self.showStatusTip(
+            translate("mic_rx_monitor", "Added new receiver at {ip}").format(ip=ip))
+
+    def on_rx_moved(self, ip, *_):
+        self.showStatusTip(
+            translate("mic_rx_monitor", "Moved receiver at {ip}").format(ip=ip))
+
+    def on_rx_removed(self, ip):
+        self.showStatusTip(
+            translate("mic_rx_monitor", "Removed receiver at {ip}").format(ip=ip))
 
     def retranslateUi(self):
         self.setWindowTitle(APP_NAME)
@@ -52,3 +68,9 @@ class MainWindow(QMainWindow):
         self.menuFile.retranslateUi()
         self.menuEdit.retranslateUi()
         self.menuAbout.retranslateUi()
+
+    def showStatusTip(self, message):
+        self.statusBar().showMessage(
+            message,
+            self.STATUSBAR_MSG_DURATION
+        )

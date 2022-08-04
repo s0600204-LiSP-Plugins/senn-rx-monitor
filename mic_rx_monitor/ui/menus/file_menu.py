@@ -2,6 +2,7 @@
 from PyQt5.QtGui import QKeySequence
 from PyQt5.QtWidgets import QAction
 
+from mic_rx_monitor import APP_NAME
 from mic_rx_monitor.i18n import translate
 from .menu import ApplicationMenu
 
@@ -22,4 +23,5 @@ class FileMenu(ApplicationMenu):
         # ~ self.fullScreenAction.setText(translate("MainWindow", "Full Screen"))
         # ~ self.fullScreenAction.setShortcut(QKeySequence.FullScreen)
         self.exitAction.setText(translate("MainWindow", "Exit"))
+        self.exitAction.setStatusTip(translate("MainWindow", "Exit {}").format(APP_NAME))
         self.exitAction.setShortcut(QKeySequence.Quit)
