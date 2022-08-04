@@ -1,5 +1,5 @@
 
-#from PyQt5.QtCore import QRect, Qt
+from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QKeySequence
 from PyQt5.QtWidgets import (
     QMainWindow,
@@ -27,6 +27,7 @@ class MainWindow(QMainWindow):
         self.setMinimumSize(640, 480)
         self.setCentralWidget(MicInfoWidgetContainer(application.core))
         self.centralWidget().layout().setContentsMargins(4, 4, 4, 4)
+        self._was_maximized = None
 
         self._application = application
 
@@ -68,6 +69,15 @@ class MainWindow(QMainWindow):
         self.menuFile.retranslateUi()
         self.menuEdit.retranslateUi()
         self.menuAbout.retranslateUi()
+
+    def setFullScreen(self, enable):
+        if enable:
+            self._was_maximized = self.windowState() & Qt.WindowMaximized
+            self.showFullScreen()
+        elif self._was_maximized:
+            self.showMaximized()
+        else:
+            self.showNormal()
 
     def showStatusTip(self, message):
         self.statusBar().showMessage(
