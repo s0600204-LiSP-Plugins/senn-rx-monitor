@@ -4,6 +4,7 @@ import signal
 import sys
 
 from PyQt5.QtCore import QTimer
+from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QApplication
 
 import qdarkstyle
@@ -22,6 +23,10 @@ def main():
     qt_app.setQuitOnLastWindowClosed(True)
 
     qt_app.setStyleSheet(qdarkstyle.load_stylesheet(qt_api='pyqt5'))
+
+    qt_app.setWindowIcon(
+        QIcon(f"{path.dirname(__file__)}/ui/icons/mic_rx_monitor.svg")
+    )
 
     # Handle SIGTERM and SIGINT by quitting the QApplication
     def handle_quit_signal(*_):
