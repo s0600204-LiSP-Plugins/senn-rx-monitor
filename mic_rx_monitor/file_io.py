@@ -4,7 +4,7 @@ from os import makedirs, path
 
 from strictyaml import as_document, load as yaml_load
 
-from . import APP_CONFIG_FILE
+from . import __config_file__
 from .schema import config_schema
 
 
@@ -25,16 +25,16 @@ def write_yaml_file(filepath, schema, content):
         )
 
 def load_config_file():
-    if path.exists(APP_CONFIG_FILE):
-        return load_yaml_file(APP_CONFIG_FILE, config_schema)
+    if path.exists(__config_file__):
+        return load_yaml_file(__config_file__, config_schema)
     return create_blank_config()
 
 def save_config_file(config):
-    if not path.exists(APP_CONFIG_FILE):
-        makedirs(path.dirname(APP_CONFIG_FILE), exist_ok=True)
+    if not path.exists(__config_file__):
+        makedirs(path.dirname(__config_file__), exist_ok=True)
 
     config['lastSave'] = datetime.utcnow()
-    return write_yaml_file(APP_CONFIG_FILE, config_schema, config)
+    return write_yaml_file(__config_file__, config_schema, config)
 
 def create_blank_config():
     return as_document(

@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import (
     QWidget,
 )
 
-from mic_rx_monitor import APP_NAME
+from mic_rx_monitor import __name__ as APP_NAME
 from mic_rx_monitor.i18n import translate
 
 from .menus.about_menu import AboutMenu

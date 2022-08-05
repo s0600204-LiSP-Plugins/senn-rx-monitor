@@ -12,7 +12,7 @@ import qdarkstyle
 # This is so we don't have to `try [...] except ImportError` code vendored from LiSP
 sys.path.insert(1, path.join(path.dirname(__file__), '_vendor'))
 
-from . import APP_NAME
+from . import __name__ as APP_NAME
 from .application import Application
 
 def main():
