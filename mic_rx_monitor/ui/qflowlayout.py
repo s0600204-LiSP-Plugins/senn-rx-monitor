@@ -115,14 +115,12 @@ class QFlowLayout(QLayout):
         return len(self._itemList)
 
     def expandingDirections(self):
-        # pylint: disable=no-self-use
         '''
         Returns the directions that this layout can make use of more space than its sizeHint().
         '''
         return Qt.Vertical
 
     def hasHeightForWidth(self):
-        # pylint: disable=no-self-use
         '''The height of this layout depends on its width.'''
         return True
 
