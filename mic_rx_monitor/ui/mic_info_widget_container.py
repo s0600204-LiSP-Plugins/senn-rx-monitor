@@ -37,6 +37,19 @@ from .rename_receiver_dialog import RenameReceiverDialog
 from .widgets.drag import DRAG_MAGIC
 from .widgets.mic_info import MicInfoWidget
 
+class _DragDropIndicator:
+    # pylint: disable=too-few-public-methods
+
+    def __init__(self, parent):
+        self.index = None
+        self.line = None
+        # The following never changes, so cache it instead of recalculating it
+        # repeatedly during drag-drop operations.
+        self.offset = (parent.layout().horizontalSpacing() + QPen().width()) / 2
+
+    def reset(self):
+        self.index = None
+        self.line = None
 
 class MicInfoWidgetContainer(QWidget):
 
@@ -52,12 +65,7 @@ class MicInfoWidgetContainer(QWidget):
         self.mouse_over_widget = None
 
         self.setAcceptDrops(True)
-        self._dragDropIndex = None
-        self._dragDropLine = None
-        # The following never changes, so cache it instead of recalculating it
-        # repeatedly during drag-drop operations.
-        self._dragDropLineOffset = \
-            (self.layout().horizontalSpacing() + QPen().width()) / 2
+        self._drop_indicator = _DragDropIndicator(self)
 
         self._core.rx_added.connect(self.append_widget)
         self._core.rx_removed.connect(self.remove_widget)
@@ -141,7 +149,7 @@ class MicInfoWidgetContainer(QWidget):
         if not isinstance(child, MicInfoWidget):
             child = child.parent()
 
-        self._dragDropIndex = self.layout().indexOf(child)
+        self._drop_indicator.index = self.layout().indexOf(child)
         rect = child.rect()
         placeBefore = child.mapFromParent(pos).x() < rect.width() / 2
         line = QLineF(
@@ -150,19 +158,18 @@ class MicInfoWidgetContainer(QWidget):
         )
 
         if placeBefore:
-            line.translate(-self._dragDropLineOffset, 0)
-            self._dragDropIndex -= 1
+            line.translate(-self._drop_indicator.offset, 0)
+            self._drop_indicator.index -= 1
         else:
-            line.translate(self._dragDropLineOffset, 0)
+            line.translate(self._drop_indicator.offset, 0)
 
-        self._dragDropLine = line
+        self._drop_indicator.line = line
         self.update()
 
     def dropEvent(self, event):
         dropped = event.source().parent()
-        new_index = self.layout().moveWidget(dropped, self._dragDropIndex)
-        self._dragDropLine = None
-        self._dragDropIndex = None
+        new_index = self.layout().moveWidget(dropped, self._drop_indicator.index)
+        self._drop_indicator.reset()
         self._core.move_rx(dropped.addr(), new_index)
 
     def minimumSize(self):
@@ -172,11 +179,11 @@ class MicInfoWidgetContainer(QWidget):
         return self._size_hint
 
     def paintEvent(self, _):
-        if self._dragDropLine:
+        if self._drop_indicator.line:
             painter = QPainter()
             painter.begin(self)
             painter.setPen(Colors.line(self))
-            painter.drawLine(self._dragDropLine)
+            painter.drawLine(self._drop_indicator.line)
             painter.end()
 
     def remove_widget(self, addr):
