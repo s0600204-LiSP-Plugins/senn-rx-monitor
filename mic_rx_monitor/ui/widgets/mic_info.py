@@ -106,15 +106,15 @@ class MicInfoWidget(QWidget):
     def is_online(self):
         return self._config_num != -1
 
+    def addr(self):
+        return self._worker.addr()
+
     def contextMenuEvent(self, event):
         self.parent().mouse_over_widget = self
         self.parent().contextMenuEvent(event)
 
     def delete_self(self):
-        self._core.remove_rx(self.ip())
-
-    def ip(self):
-        return self._worker.ip()
+        self._core.remove_rx(self.addr())
 
     def paintEvent(self, _):
         # pylint: disable=invalid-name

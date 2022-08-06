@@ -22,20 +22,20 @@ class MicMonitorCore:
         self._discovery.start()
         self._discovery.discovered.connect(self.add_discovered, Connection.QtQueued)
 
-        self._rx_ips = [] # Used to track the display order
+        self._rx_addrs = [] # Used to track the display order
         self._rx_workers = {}
-        self.rx_added = Signal() # ip, worker
-        self.rx_moved = Signal() # ip, new_index
-        self.rx_removed = Signal() # ip
+        self.rx_added = Signal() # addr, worker
+        self.rx_moved = Signal() # addr, new_index
+        self.rx_removed = Signal() # addr
         self.list_updated = Signal() # rx_list
 
     @property
     def rx_list(self):
         lst = []
-        for ip in self._rx_ips:
+        for addr in self._rx_addrs:
             lst.append({
-                "ip": ip,
-                "proto": self._rx_workers[ip].proto,
+                "addr": addr,
+                "proto": self._rx_workers[addr].proto,
             })
         return lst
 
@@ -43,29 +43,29 @@ class MicMonitorCore:
     def server(self):
         return self._server
 
-    def add_discovered(self, ip):
-        if ip in self._rx_workers:
+    def add_discovered(self, addr):
+        if addr in self._rx_workers:
             return
-        self.append_rx(ip)
+        self.append_rx(addr)
 
-    def append_rx(self, ip):
-        if ip in self._rx_workers:
+    def append_rx(self, addr):
+        if addr in self._rx_workers:
             return
 
-        if ip not in self._rx_ips:
-            self._rx_ips.append(ip)
+        if addr not in self._rx_addrs:
+            self._rx_addrs.append(addr)
 
-        worker = self._server.request_new_worker(ip)
-        self._rx_workers[ip] = worker
+        worker = self._server.request_new_worker(addr)
+        self._rx_workers[addr] = worker
         self._server.register(worker)
-        self.rx_added.emit(ip, worker)
+        self.rx_added.emit(addr, worker)
         self.list_updated.emit(self.rx_list)
 
     def discover(self):
         self._discovery.discover()
 
-    def exists(self, ip):
-        return ip in self._rx_workers
+    def exists(self, addr):
+        return addr in self._rx_workers
 
     def load(self, rx_list):
         for rx in rx_list:
@@ -73,35 +73,35 @@ class MicMonitorCore:
                 # Backwards compatibility with old LiSP showfiles
                 self.append_rx(rx)
             else:
-                self.append_rx(rx['ip'])
+                self.append_rx(rx['addr'])
 
     def reset(self):
         try:
             while True:
-                ip = self._rx_ips[0]
-                self.remove_rx(ip)
+                addr = self._rx_addrs[0]
+                self.remove_rx(addr)
         except IndexError:
             pass
 
-    def move_rx(self, ip, new_index):
-        self._rx_ips.remove(ip)
-        self._rx_ips.insert(new_index, ip)
-        self.rx_moved.emit(ip, new_index)
+    def move_rx(self, addr, new_index):
+        self._rx_addrs.remove(addr)
+        self._rx_addrs.insert(new_index, addr)
+        self.rx_moved.emit(addr, new_index)
         self.list_updated.emit(self.rx_list)
 
-    def remove_rx(self, ip):
-        if ip not in self._rx_workers:
+    def remove_rx(self, addr):
+        if addr not in self._rx_workers:
             return
 
-        self._server.deregister(ip)
-        self._rx_ips.remove(ip)
-        self.rx_removed.emit(ip)
+        self._server.deregister(addr)
+        self._rx_addrs.remove(addr)
+        self.rx_removed.emit(addr)
         self.list_updated.emit(self.rx_list)
-        del self._rx_workers[ip]
+        del self._rx_workers[addr]
 
-    def rx_worker(self, ip):
-        if ip in self._rx_workers:
-            return self._rx_workers[ip]
+    def rx_worker(self, addr):
+        if addr in self._rx_workers:
+            return self._rx_workers[addr]
         return None
 
     def terminate(self):

@@ -63,7 +63,7 @@ class MicInfoWidgetContainer(QWidget):
         self._core.rx_removed.connect(self.remove_widget)
 
         for rx in self._core.rx_list:
-            self.append_widget(rx['ip'], self._core.rx_worker(rx['ip']))
+            self.append_widget(rx['addr'], self._core.rx_worker(rx['addr']))
 
     def _create_menu_action(self, caption, slot, enabled=True):
         new_action = QAction(caption, parent=self._menu)
@@ -79,9 +79,9 @@ class MicInfoWidgetContainer(QWidget):
         new_action.setFont(font)
         self._menu.addAction(new_action)
 
-    def _find_widget(self, ip):
+    def _find_widget(self, addr):
         for item in self.layout().children():
-            if item.widget().ip() == ip:
+            if item.widget().addr() == addr:
                 return item.widget()
         return None
 
@@ -90,14 +90,14 @@ class MicInfoWidgetContainer(QWidget):
             self._add_dialog = AddReceiverDialog(parent=self)
 
         if self._add_dialog.exec() == QDialog.Accepted:
-            self._core.append_rx(self._add_dialog.ip())
+            self._core.append_rx(self._add_dialog.addr())
 
     def append_widget(self, _, worker):
         widget = MicInfoWidget(worker, self._core)
         self.layout().addWidget(widget)
 
-    def check_exists(self, ip):
-        return self._core.exists(ip)
+    def check_exists(self, addr):
+        return self._core.exists(addr)
 
     def count(self):
         return self.layout().count()
@@ -106,7 +106,7 @@ class MicInfoWidgetContainer(QWidget):
         self._menu.clear()
 
         if self.mouse_over_widget and isinstance(self.mouse_over_widget, MicInfoWidget):
-            self._create_menu_subheader(self.mouse_over_widget.ip())
+            self._create_menu_subheader(self.mouse_over_widget.addr())
             self._create_menu_action(
                 translate('senn_rx_monitor', 'Rename Receiver'),
                 self.mouse_over_widget.rename_self,
@@ -163,7 +163,7 @@ class MicInfoWidgetContainer(QWidget):
         new_index = self.layout().moveWidget(dropped, self._dragDropIndex)
         self._dragDropLine = None
         self._dragDropIndex = None
-        self._core.move_rx(dropped.ip(), new_index)
+        self._core.move_rx(dropped.addr(), new_index)
 
     def minimumSize(self):
         return self.layout().minimumSize()
@@ -179,8 +179,8 @@ class MicInfoWidgetContainer(QWidget):
             painter.drawLine(self._dragDropLine)
             painter.end()
 
-    def remove_widget(self, ip):
-        widget = self._find_widget(ip)
+    def remove_widget(self, addr):
+        widget = self._find_widget(addr)
         self.layout().removeWidget(widget)
         widget.deleteLater()
 

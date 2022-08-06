@@ -39,17 +39,17 @@ class AddReceiverDialog(QDialog):
         self._label.setAlignment(Qt.AlignHCenter)
         self.layout().addRow(self._label)
 
-        self._ip_text = QLineEdit()
-        self._ip_text.setInputMask('000.000.000.000')
-        self.layout().addRow('-', self._ip_text)
+        self._addr_text = QLineEdit()
+        self._addr_text.setInputMask('000.000.000.000')
+        self.layout().addRow('-', self._addr_text)
 
         self._buttons = QDialogButtonBox(QDialogButtonBox.Save | QDialogButtonBox.Close)
         self._buttons.accepted.connect(self.validate)
         self._buttons.rejected.connect(self.reject)
         self.layout().addRow(self._buttons)
 
-    def ip(self):
-        return self._ip_text.text()
+    def addr(self):
+        return self._addr_text.text()
 
     def exec(self):
         self.retranslateUi()
@@ -60,15 +60,15 @@ class AddReceiverDialog(QDialog):
             translate('senn_rx_monitor', 'Add Receiver'))
         self._label.setText(
             translate('senn_rx_monitor', 'Enter an IP address'))
-        self.layout().labelForField(self._ip_text).setText(
+        self.layout().labelForField(self._addr_text).setText(
             translate('senn_rx_monitor', 'IP Address:'))
 
     def validate(self):
-        if not self._ip_text.hasAcceptableInput():
+        if not self._addr_text.hasAcceptableInput():
             self._label.setText(translate('senn_rx_monitor', 'Not a valid IP address'))
             return
 
-        text = self._ip_text.text()
+        text = self._addr_text.text()
         for part in text.split('.'):
             if not part or int(part) > 255:
                 self._label.setText(translate('senn_rx_monitor', 'Not a valid IP address'))

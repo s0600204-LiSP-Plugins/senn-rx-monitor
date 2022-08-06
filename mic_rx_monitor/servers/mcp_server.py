@@ -53,14 +53,14 @@ class SennheiserMCPServer(Thread):
         super().__init__(daemon=True)
         self._server = _Server(("0.0.0.0", PORT), _Handler)
 
-    def deregister(self, ip):
-        return self._server.deregister(ip)
+    def deregister(self, addr):
+        return self._server.deregister(addr)
 
     def register(self, worker):
         return self._server.register(worker)
 
-    def request_new_worker(self, ip):
-        return SennheiserMCPWorker(self._server, ip)
+    def request_new_worker(self, addr):
+        return SennheiserMCPWorker(self._server, addr)
 
     def run(self):
         with self._server as server:
@@ -83,16 +83,16 @@ class _Server(UDPServer):
         self._registered = {}
         self._clock = Clock(UPDATE_INTERVAL * 1000)
 
-    def deregister(self, ip):
-        if ip not in self._registered:
+    def deregister(self, addr):
+        if addr not in self._registered:
             logger.warning(
                 "Unable to deregister device on %s, due to not being registered",
-                ip
+                addr
             )
             return False
 
-        self._clock.remove_callback(self._registered[ip].run)
-        del self._registered[ip]
+        self._clock.remove_callback(self._registered[addr].run)
+        del self._registered[addr]
         return True
 
     def dispatch(self, source, messages):
@@ -101,16 +101,16 @@ class _Server(UDPServer):
         self._registered[source].receive(messages)
 
     def register(self, worker):
-        ip = worker.ip()
-        if ip in self._registered:
+        addr = worker.addr()
+        if addr in self._registered:
             logging.warning(
                 "Unable to register device on %s, " \
                 "due to a device already being registered at this address",
-                ip
+                addr
             )
             return False
 
-        self._registered[ip] = worker
+        self._registered[addr] = worker
         self._clock.add_callback(worker.run)
         return True
 
@@ -144,8 +144,8 @@ class SennheiserMCPWorker:
 
     proto = 'mcp'
 
-    def __init__(self, server, ip):
-        self._ip = ip
+    def __init__(self, server, addr):
+        self._addr = addr
         self._server = server
         self._last_rx = None
 
@@ -176,8 +176,8 @@ class SennheiserMCPWorker:
     def signals(self):
         return self._signals
 
-    def ip(self):
-        return self._ip
+    def addr(self):
+        return self._addr
 
     def receive(self, messages):
         '''Processes messages received from the target'''
@@ -187,11 +187,11 @@ class SennheiserMCPWorker:
             self._handlers.get(msg[0], lambda _: None)(msg[1:])
 
     def request_config(self):
-        self._server.transmit(self._ip, 'Push 0 0 1')
+        self._server.transmit(self._addr, 'Push 0 0 1')
 
     def run(self):
         '''Code to run every UPDATE_INTERVAL'''
-        self._server.transmit(self._ip, 'Push {} {} 0'.format(UPDATE_INTERVAL, UPDATE_FREQUENCY))
+        self._server.transmit(self._addr, 'Push {} {} 0'.format(UPDATE_INTERVAL, UPDATE_FREQUENCY))
 
         if not self._last_rx or self._last_rx + UPDATE_INTERVAL > time.monotonic():
             return
@@ -200,4 +200,4 @@ class SennheiserMCPWorker:
         self._last_rx = None
 
     def send_rename_request(self, new_name):
-        self._server.transmit(self._ip, 'Name {}'.format(new_name))
+        self._server.transmit(self._addr, 'Name {}'.format(new_name))

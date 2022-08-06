@@ -46,17 +46,17 @@ class MainWindow(QMainWindow):
 
         self.retranslateUi()
 
-    def on_rx_added(self, ip, _):
+    def on_rx_added(self, addr, _):
         self.show_status_message(
-            translate("mic_rx_monitor", "Added new receiver at {ip}").format(ip=ip))
+            translate("mic_rx_monitor", "Added new receiver at {addr}").format(addr=addr))
 
-    def on_rx_moved(self, ip, *_):
+    def on_rx_moved(self, addr, *_):
         self.show_status_message(
-            translate("mic_rx_monitor", "Moved receiver at {ip}").format(ip=ip))
+            translate("mic_rx_monitor", "Moved receiver at {addr}").format(addr=addr))
 
-    def on_rx_removed(self, ip):
+    def on_rx_removed(self, addr):
         self.show_status_message(
-            translate("mic_rx_monitor", "Removed receiver at {ip}").format(ip=ip))
+            translate("mic_rx_monitor", "Removed receiver at {addr}").format(addr=addr))
 
     def retranslateUi(self):
         self.setWindowTitle(APP_NAME)
