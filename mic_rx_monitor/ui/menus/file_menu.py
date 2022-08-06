@@ -32,7 +32,7 @@ class FileMenu(ApplicationMenu):
     def requestResetConfirmation(self):
         def reset():
             self._application.core.reset()
-            self._window.showStatusTip(translate("mic_rx_monitor", "Removed all receivers"))
+            self._window.show_status_message(translate("mic_rx_monitor", "Removed all receivers"))
 
         confirmationDialog = QMessageBox(
             QMessageBox.Warning,

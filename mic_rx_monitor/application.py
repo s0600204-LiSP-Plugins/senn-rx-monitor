@@ -29,12 +29,12 @@ class Application:
     def load_config(self):
         self._config = load_config_file()
         if not self._config:
-            self._mainwindow.showStatusTip(
+            self._mainwindow.show_status_message(
                 translate("mic_rx_monitor", "No valid configuration found"))
             return
 
         self._monitor_core.load(self._config['rx'])
-        self._mainwindow.showStatusTip(
+        self._mainwindow.show_status_message(
             translate("mic_rx_monitor", "Configuration restored"))
 
     def save_rx_list(self, rx_list):

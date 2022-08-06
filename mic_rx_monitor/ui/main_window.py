@@ -47,15 +47,15 @@ class MainWindow(QMainWindow):
         self.retranslateUi()
 
     def on_rx_added(self, ip, _):
-        self.showStatusTip(
+        self.show_status_message(
             translate("mic_rx_monitor", "Added new receiver at {ip}").format(ip=ip))
 
     def on_rx_moved(self, ip, *_):
-        self.showStatusTip(
+        self.show_status_message(
             translate("mic_rx_monitor", "Moved receiver at {ip}").format(ip=ip))
 
     def on_rx_removed(self, ip):
-        self.showStatusTip(
+        self.show_status_message(
             translate("mic_rx_monitor", "Removed receiver at {ip}").format(ip=ip))
 
     def retranslateUi(self):
@@ -75,7 +75,7 @@ class MainWindow(QMainWindow):
         else:
             self.showNormal()
 
-    def showStatusTip(self, message):
+    def show_status_message(self, message):
         self.statusBar().showMessage(
             message,
             self.STATUSBAR_MSG_DURATION
