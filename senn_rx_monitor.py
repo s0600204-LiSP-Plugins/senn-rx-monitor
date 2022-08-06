@@ -36,6 +36,11 @@ from lisp.core.session import Session
 from lisp.layout import register_layout
 from lisp.ui.ui_utils import translate
 
+from senn_rx_monitor.mic_rx_monitor import (
+    __author__,
+    __doc__,
+    __name__ as APP_NAME,
+)
 from senn_rx_monitor.mic_rx_monitor.core import MicMonitorCore
 from senn_rx_monitor.mic_rx_monitor.ui.mic_info_dialog import MicInfoDialog
 from senn_rx_monitor.mic_rx_monitor.ui.mic_info_layout import MicInfoLayout
@@ -47,9 +52,9 @@ Session.senn_rx = Property(default=[])
 class SennRxMonitor(Plugin):
     """Monitoring of Sennheiser Radio Microphone Receievers"""
 
-    Name = 'Sennheiser Rx Monitor'
-    Authors = ('s0600204',)
-    Description = 'Monitoring of Sennheiser Radio Microphone Receivers.'
+    Name = APP_NAME
+    Authors = (__author__,)
+    Description = __doc__
 
     def __init__(self, app):
         super().__init__(app)
