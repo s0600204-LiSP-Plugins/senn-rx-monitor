@@ -9,3 +9,4 @@ class ApplicationMenu(QMenu):
 
         self._window = main_window
         self._application = main_window._application
+        self._actions = {}

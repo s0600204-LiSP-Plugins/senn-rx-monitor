@@ -13,15 +13,11 @@ class AboutMenu(ApplicationMenu):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Actions
-        self.actionAboutQt = QAction(self)
-        self.actionAboutQt.triggered.connect(qApp.aboutQt)
-
-        # Order of Options
-        self.addAction(self.actionAboutQt)
+        self._actions['aboutQt'] = QAction(self)
+        self._actions['aboutQt'].triggered.connect(qApp.aboutQt)
+        self.addAction(self._actions['aboutQt'])
 
     def retranslateUi(self):
         self.setTitle(translate("MainWindow", "&About"))
 
-        # ~ self.actionAbout.setText(translate("MainWindow", "About"))
-        self.actionAboutQt.setText(translate("MainWindow", "About Qt"))
+        self._actions['aboutQt'].setText(translate("MainWindow", "About Qt"))

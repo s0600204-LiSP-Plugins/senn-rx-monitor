@@ -11,25 +11,25 @@ class EditMenu(ApplicationMenu):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.actionManualAdd = QAction(self)
-        self.actionManualAdd.triggered.connect(self._window.centralWidget().add_receiver)
-        self.addAction(self.actionManualAdd)
+        self._actions['addManually'] = QAction(self)
+        self._actions['addManually'].triggered.connect(self._window.centralWidget().add_receiver)
+        self.addAction(self._actions['addManually'])
 
         self.addSeparator()
 
-        self.actionDiscoverMCP = QAction(self)
-        self.actionDiscoverMCP.triggered.connect(self._application.core.discover)
-        self.addAction(self.actionDiscoverMCP)
+        self._actions['discoverMCP'] = QAction(self)
+        self._actions['discoverMCP'].triggered.connect(self._application.core.discover)
+        self.addAction(self._actions['discoverMCP'])
 
     def retranslateUi(self):
         self.setTitle(translate("MainWindow", "&Edit"))
 
-        self.actionManualAdd.setText(translate("mic_rx_monitor", "Add Receiver"))
-        self.actionManualAdd.setStatusTip(
+        self._actions['addManually'].setText(translate("mic_rx_monitor", "Add Receiver"))
+        self._actions['addManually'].setStatusTip(
             translate("mic_rx_monitor", "Manually add a receiver by IP"))
-        self.actionManualAdd.setShortcut(QKeySequence.New)
+        self._actions['addManually'].setShortcut(QKeySequence.New)
 
-        self.actionDiscoverMCP.setText(translate("mic_rx_monitor", "Discover MCP Receivers"))
-        self.actionDiscoverMCP.setStatusTip(
+        self._actions['discoverMCP'].setText(translate("mic_rx_monitor", "Discover MCP Receivers"))
+        self._actions['discoverMCP'].setStatusTip(
             translate("mic_rx_monitor", "Discover receivers available via Sennheiser's 'Media Control Protocol'"))
-        self.actionDiscoverMCP.setShortcut("CTRL+SHIFT+R")
+        self._actions['discoverMCP'].setShortcut("CTRL+SHIFT+R")

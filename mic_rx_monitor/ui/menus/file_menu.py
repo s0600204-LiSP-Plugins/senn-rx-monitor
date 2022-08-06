@@ -12,22 +12,22 @@ class FileMenu(ApplicationMenu):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.resetAction = QAction(self)
-        self.resetAction.triggered.connect(self.requestResetConfirmation)
-        self.addAction(self.resetAction)
+        self._actions['reset'] = QAction(self)
+        self._actions['reset'].triggered.connect(self.requestResetConfirmation)
+        self.addAction(self._actions['reset'])
 
         self.addSeparator()
 
-        self.fullScreenAction = QAction(self)
-        self.fullScreenAction.setCheckable(True)
-        self.fullScreenAction.triggered.connect(self._window.setFullScreen)
-        self.addAction(self.fullScreenAction)
+        self._actions['fullscreen'] = QAction(self)
+        self._actions['fullscreen'].setCheckable(True)
+        self._actions['fullscreen'].triggered.connect(self._window.setFullScreen)
+        self.addAction(self._actions['fullscreen'])
 
         self.addSeparator()
 
-        self.exitAction = QAction(self)
-        self.exitAction.triggered.connect(self._window.close)
-        self.addAction(self.exitAction)
+        self._actions['exit'] = QAction(self)
+        self._actions['exit'].triggered.connect(self._window.close)
+        self.addAction(self._actions['exit'])
 
     def requestResetConfirmation(self):
         def reset():
@@ -46,16 +46,16 @@ class FileMenu(ApplicationMenu):
     def retranslateUi(self):
         self.setTitle(translate("MainWindow", "&File"))
 
-        self.resetAction.setText(translate("MainWindow", "Reset"))
-        self.resetAction.setStatusTip(translate("MainWindow", "Remove all Receivers"))
+        self._actions['reset'].setText(translate("MainWindow", "Reset"))
+        self._actions['reset'].setStatusTip(translate("MainWindow", "Remove all Receivers"))
 
-        self.fullScreenAction.setText(translate("MainWindow", "Full Screen"))
-        self.fullScreenAction.setStatusTip(translate("MainWindow", "Toggle Full Screen"))
+        self._actions['fullscreen'].setText(translate("MainWindow", "Full Screen"))
+        self._actions['fullscreen'].setStatusTip(translate("MainWindow", "Toggle Full Screen"))
         if QKeySequence(QKeySequence.FullScreen).isEmpty():
-            self.fullScreenAction.setShortcut("F11")
+            self._actions['fullscreen'].setShortcut("F11")
         else:
-            self.fullScreenAction.setShortcut(QKeySequence.FullScreen)
+            self._actions['fullscreen'].setShortcut(QKeySequence.FullScreen)
 
-        self.exitAction.setText(translate("MainWindow", "Exit"))
-        self.exitAction.setStatusTip(translate("MainWindow", "Exit {}").format(APP_NAME))
-        self.exitAction.setShortcut(QKeySequence.Quit)
+        self._actions['exit'].setText(translate("MainWindow", "Exit"))
+        self._actions['exit'].setStatusTip(translate("MainWindow", "Exit {}").format(APP_NAME))
+        self._actions['exit'].setShortcut(QKeySequence.Quit)
