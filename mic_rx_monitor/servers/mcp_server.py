@@ -21,7 +21,6 @@
 # along with Linux Show Player.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
-import socket
 from socketserver import BaseRequestHandler, UDPServer
 from threading import Thread
 import time

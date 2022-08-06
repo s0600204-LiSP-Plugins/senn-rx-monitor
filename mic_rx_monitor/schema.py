@@ -6,7 +6,6 @@ from strictyaml import (
     Map,
     Regex,
     Seq,
-    # ~ Str,
 )
 
 """

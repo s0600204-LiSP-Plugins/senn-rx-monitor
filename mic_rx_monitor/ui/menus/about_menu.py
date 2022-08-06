@@ -1,5 +1,4 @@
 
-from PyQt5.QtGui import QKeySequence
 from PyQt5.QtWidgets import (
     QAction,
     qApp,

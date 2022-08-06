@@ -1,12 +1,8 @@
 
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QKeySequence
 from PyQt5.QtWidgets import (
     QMainWindow,
     QMenuBar,
-    QStatusBar,
-    QVBoxLayout,
-    QWidget,
 )
 
 from mic_rx_monitor import __name__ as APP_NAME
