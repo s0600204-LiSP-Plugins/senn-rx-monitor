@@ -79,16 +79,17 @@ class MicInfoWidget(QWidget):
 
         # We use Connection.QtQueued as the signals are emitted on the server/listener thread
         # and we need to run the connected methods on the main event loop thread.
-        self._worker.lost_connection.connect(self.reset, Connection.QtQueued)
-        self._worker.updated_af_level.connect(self.set_af, Connection.QtQueued)
-        self._worker.updated_battery_status.connect(self.update_battery_status, Connection.QtQueued)
-        self._worker.updated_config_num.connect(self.check_config, Connection.QtQueued)
-        self._worker.updated_frequency.connect(self.set_freq, Connection.QtQueued)
-        self._worker.updated_name.connect(self.set_name, Connection.QtQueued)
-        self._worker.updated_rf.connect(self.set_rf, Connection.QtQueued)
-        self._worker.updated_rf_levels.connect(self.parse_rf, Connection.QtQueued)
-        self._worker.updated_status.connect(self.update_status, Connection.QtQueued)
-        self._worker.updated_squelch.connect(self.set_squelch, Connection.QtQueued)
+        signals = self._worker.signals
+        signals.lost_connection.connect(self.reset, Connection.QtQueued)
+        signals.updated_af_level.connect(self.set_af, Connection.QtQueued)
+        signals.updated_battery_status.connect(self.update_battery_status, Connection.QtQueued)
+        signals.updated_config_num.connect(self.check_config, Connection.QtQueued)
+        signals.updated_frequency.connect(self.set_freq, Connection.QtQueued)
+        signals.updated_name.connect(self.set_name, Connection.QtQueued)
+        signals.updated_rf.connect(self.set_rf, Connection.QtQueued)
+        signals.updated_rf_levels.connect(self.parse_rf, Connection.QtQueued)
+        signals.updated_status.connect(self.update_status, Connection.QtQueued)
+        signals.updated_squelch.connect(self.set_squelch, Connection.QtQueued)
 
     def check_config(self, config_num):
         if config_num == self._config_num:
