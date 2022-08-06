@@ -1,0 +1,32 @@
+[MAIN]
+extension-pkg-allow-list=
+    netifaces,
+    PyQt5.QtCore,
+    PyQt5.QtGui,
+    PyQt5.QtWidgets,
+
+good-names=
+    # PyQt5
+    contextMenuEvent,
+    dragEnterEvent,
+    dragMoveEvent,
+    dropEvent,
+    minimumSize,
+    minimumSizeHint,
+    paintEvent,
+
+    # LiSP
+    retranslateUi,
+
+ignore-paths=
+    mic_rx_monitor/_vendor
+
+recursive=yes
+
+[MESSAGES CONTROL]
+disable=
+    import-error,
+    pointless-string-statement,
+    missing-class-docstring,
+    missing-module-docstring,
+    missing-function-docstring,
