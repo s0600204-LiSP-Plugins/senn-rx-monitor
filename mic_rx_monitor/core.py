@@ -68,12 +68,12 @@ class MicMonitorCore:
         return addr in self._rx_workers
 
     def load(self, rx_list):
-        for rx in rx_list:
-            if isinstance(rx, str):
+        for receiver in rx_list:
+            if isinstance(receiver, str):
                 # Backwards compatibility with old LiSP showfiles
-                self.append_rx(rx)
+                self.append_rx(receiver)
             else:
-                self.append_rx(rx['addr'])
+                self.append_rx(receiver['addr'])
 
     def reset(self):
         try:

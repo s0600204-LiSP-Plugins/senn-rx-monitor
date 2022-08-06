@@ -11,10 +11,10 @@ _app_dirs = AppDirs(
 
 def _split_vers(vers):
     vers = vers.split(".")
-    for v in range(3):
-        vers[v] = int(vers[v])
-    for v in range(3, len(vers)):
-        vers[v:v+1] = vers[v].split("+")
+    for idx in range(3):
+        vers[idx] = int(vers[idx])
+    for idx in range(3, len(vers)):
+        vers[idx:idx+1] = vers[idx].split("+")
     return tuple(vers)
 
 

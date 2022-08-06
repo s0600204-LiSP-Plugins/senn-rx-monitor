@@ -78,7 +78,7 @@ class AFMeter(DBMeter):
 
     def reset(self):
         self.peaks = [self.dBMin]
-        self.decayPeaks = [self.dBMin]
+        self.decayPeaks = [self.dBMin] # pylint: disable=invalid-name
         self.clipping = {}
 
         self.update()
@@ -102,23 +102,23 @@ class RFMeter(DBMeter):
         super().plot(new_peaks, None, new_decays)
         self.clipping = {}
 
-    def setSquelch(self, squelch):
+    def setSquelch(self, squelch): # pylint: disable=invalid-name
         self.squelch = squelch
         self.updatePixmap()
 
-    def updatePixmap(self):
+    def updatePixmap(self): # pylint: disable=invalid-name
         """Prepare the colored rect to be used during paintEvent(s)"""
-        w = self.width()
-        h = self.height()
+        width = self.width()
+        height = self.height()
 
-        dbRange = abs(self.dBMin - self.dBMax)
-        squelch = 1 - self.squelch / dbRange
+        db_range = abs(self.dBMin - self.dBMax)
+        squelch = 1 - self.squelch / db_range
 
-        gradient = QLinearGradient(0, 0, 0, h)
+        gradient = QLinearGradient(0, 0, 0, height)
         gradient.setColorAt(0, QColor(0, 220, 0))
         gradient.setColorAt(squelch, QColor(0, 160, 0))
         gradient.setColorAt(min(squelch + 0.01, 1), QColor(255, 220, 0))
         gradient.setColorAt(1, QColor(255, 220, 0))
 
-        self._pixmap = QPixmap(w, h)
-        QPainter(self._pixmap).fillRect(0, 0, w, h, gradient)
+        self._pixmap = QPixmap(width, height)
+        QPainter(self._pixmap).fillRect(0, 0, width, height, gradient)

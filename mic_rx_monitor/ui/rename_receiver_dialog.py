@@ -63,7 +63,7 @@ class RenameReceiverDialog(QDialog):
         self.layout().labelForField(self._name_text).setText(
             translate('senn_rx_monitor', 'New Name:'))
 
-    def setExistingName(self, existing_name):
+    def set_existing_name(self, existing_name):
         self._name_text.setPlaceholderText(existing_name)
         self._name_text.setText(existing_name)
 

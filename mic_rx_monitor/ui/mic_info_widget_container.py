@@ -70,8 +70,8 @@ class MicInfoWidgetContainer(QWidget):
         self._core.rx_added.connect(self.append_widget)
         self._core.rx_removed.connect(self.remove_widget)
 
-        for rx in self._core.rx_list:
-            self.append_widget(rx['addr'], self._core.rx_worker(rx['addr']))
+        for receiver in self._core.rx_list:
+            self.append_widget(receiver['addr'], self._core.rx_worker(receiver['addr']))
 
     def _create_menu_action(self, caption, slot, enabled=True):
         new_action = QAction(caption, parent=self._menu)
@@ -151,13 +151,13 @@ class MicInfoWidgetContainer(QWidget):
 
         self._drop_indicator.index = self.layout().indexOf(child)
         rect = child.rect()
-        placeBefore = child.mapFromParent(pos).x() < rect.width() / 2
+        place_before = child.mapFromParent(pos).x() < rect.width() / 2
         line = QLineF(
-            child.mapToParent(rect.topLeft() if placeBefore else rect.topRight()),
-            child.mapToParent(rect.bottomLeft() if placeBefore else rect.bottomRight())
+            child.mapToParent(rect.topLeft() if place_before else rect.topRight()),
+            child.mapToParent(rect.bottomLeft() if place_before else rect.bottomRight())
         )
 
-        if placeBefore:
+        if place_before:
             line.translate(-self._drop_indicator.offset, 0)
             self._drop_indicator.index -= 1
         else:
@@ -195,7 +195,7 @@ class MicInfoWidgetContainer(QWidget):
         if not self._rename_dialog:
             self._rename_dialog = RenameReceiverDialog(parent=self)
 
-        self._rename_dialog.setExistingName(old_name)
+        self._rename_dialog.set_existing_name(old_name)
         if self._rename_dialog.exec() == QDialog.Accepted:
             return self._rename_dialog.name()
         return None

@@ -30,13 +30,13 @@ class MainWindow(QMainWindow):
         # Menu Bar
         self.menubar = QMenuBar(self)
 
-        self.menuFile = FileMenu(self)
-        self.menuEdit = EditMenu(self)
-        self.menuAbout = AboutMenu(self)
+        self.menu_file = FileMenu(self)
+        self.menu_edit = EditMenu(self)
+        self.menu_about = AboutMenu(self)
 
-        self.menubar.addMenu(self.menuFile)
-        self.menubar.addMenu(self.menuEdit)
-        self.menubar.addMenu(self.menuAbout)
+        self.menubar.addMenu(self.menu_file)
+        self.menubar.addMenu(self.menu_edit)
+        self.menubar.addMenu(self.menu_about)
         self.setMenuBar(self.menubar)
 
         # Listeners to show messages on Status Bar
@@ -62,11 +62,11 @@ class MainWindow(QMainWindow):
         self.setWindowTitle(APP_NAME)
 
         # Menus
-        self.menuFile.retranslateUi()
-        self.menuEdit.retranslateUi()
-        self.menuAbout.retranslateUi()
+        self.menu_file.retranslateUi()
+        self.menu_edit.retranslateUi()
+        self.menu_about.retranslateUi()
 
-    def setFullScreen(self, enable):
+    def set_fullscreen(self, enable):
         if enable:
             self._was_maximized = self.windowState() & Qt.WindowMaximized
             self.showFullScreen()
