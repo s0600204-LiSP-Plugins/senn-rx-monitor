@@ -28,6 +28,11 @@ class Application:
 
     def load_config(self):
         self._config = load_config_file()
+        if not self._config:
+            self._mainwindow.showStatusTip(
+                translate("mic_rx_monitor", "No valid configuration found"))
+            return
+
         self._monitor_core.load(self._config['rx'])
         self._mainwindow.showStatusTip(
             translate("mic_rx_monitor", "Configuration restored"))
