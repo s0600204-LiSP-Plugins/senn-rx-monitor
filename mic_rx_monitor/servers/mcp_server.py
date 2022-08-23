@@ -191,7 +191,7 @@ class SennheiserMCPWorker:
 
     def run(self):
         '''Code to run every UPDATE_INTERVAL'''
-        self._server.transmit(self._addr, 'Push {} {} 0'.format(UPDATE_INTERVAL, UPDATE_FREQUENCY))
+        self._server.transmit(self._addr, f'Push {UPDATE_INTERVAL} {UPDATE_FREQUENCY} 0')
 
         if not self._last_rx or self._last_rx + UPDATE_INTERVAL > time.monotonic():
             return
@@ -200,4 +200,4 @@ class SennheiserMCPWorker:
         self._last_rx = None
 
     def send_rename_request(self, new_name):
-        self._server.transmit(self._addr, 'Name {}'.format(new_name))
+        self._server.transmit(self._addr, f'Name {new_name}')
