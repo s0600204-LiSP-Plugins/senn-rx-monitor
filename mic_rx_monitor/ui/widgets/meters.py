@@ -53,6 +53,7 @@ class AFMeter(DBMeter):
         super().__init__(parent, dBMin=-50, smoothing=0, unit='dB')
         self.peak_map_keys = [v[0] for v in self.peak_map]
 
+    # pylint: disable=arguments-differ
     def plot(self, peaks, decays):
         self.clipping = {}
         new_peaks = [self.remap_peak(peak) for peak in peaks]
@@ -95,6 +96,7 @@ class RFMeter(DBMeter):
         self.scale = lambda db: db / abs(self.dBMin - self.dBMax)
         self.squelch = 1
 
+    # pylint: disable=arguments-differ
     def plot(self, peaks, decays):
         scale = (self.dBMax - self.dBMin) / 100
         new_peaks = [self.dBMin + peak * scale for peak in peaks]

@@ -37,10 +37,9 @@ class DragWidget(QWidget):
     def __init__(self, parent=None, **kwargs):
         super().__init__(parent, **kwargs)
 
-        height = self.gap * 2 + 3
+        height = int(self.gap * 3.5)
         self.setMinimumHeight(height)
         self.setMaximumHeight(height)
-        self._segments = []
 
     def mousePressEvent(self, event):
         # pylint: disable=invalid-name

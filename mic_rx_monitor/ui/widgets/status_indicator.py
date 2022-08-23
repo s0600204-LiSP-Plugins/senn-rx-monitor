@@ -122,7 +122,7 @@ class StatusIndicator(QWidget):
         #     |
         #     |
         # |‾‾‾‾|
-        # |    |
+        # | [] |
         # |____|
         tx = [
             ['l', tenth * 6,         0, 'm'],

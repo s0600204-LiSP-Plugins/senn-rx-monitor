@@ -13,6 +13,8 @@ import qdarkstyle
 # This is so we don't have to `try [...] except ImportError` code vendored from LiSP
 sys.path.insert(1, path.join(path.dirname(__file__), '_vendor'))
 
+# This must be placed below the `sys.path.insert()` above
+# pylint: disable=wrong-import-position
 from . import __app_name__
 from .application import Application
 

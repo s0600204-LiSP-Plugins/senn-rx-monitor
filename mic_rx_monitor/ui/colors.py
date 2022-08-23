@@ -55,8 +55,8 @@ if not impossible.
 class Colors:
 
     class State(enum.Enum):
-        NORMAL = enum.auto(),
-        HOVER = enum.auto(),
+        NORMAL = enum.auto()
+        HOVER = enum.auto()
 
     OK = QColor(0, 160, 0)
     ERROR = QColor(250, 0, 0)
