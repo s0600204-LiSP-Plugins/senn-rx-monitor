@@ -7,7 +7,7 @@ from PyQt5.QtGui import QColor
 If a Theme does not explicitly set palette colours, Qt5 derives suitable colours from the
 Theme's stylesheet.
 
-From experimentation it appears that, for any given widget, the `ColorRole`s of the derived
+From experimentation it appears that, for any given widget, the colours given to the derived
 Palette's `ColorRole`s are taken from the following QSS properties:
 
   Palette `ColorRole`  QSS Property
@@ -33,12 +33,17 @@ Palette's `ColorRole`s are taken from the following QSS properties:
   Link                 -
   LinkVisited          -
 
-If a colour is not specified by the stylesheet, or the ColorRole is not derived from any QSS
-property, then the ColorRole remains at the system default.
+If the applicable property is not set in the stylesheet, or the ColorRole is not derived from
+any QSS property, then the colour for that ColorRole remains at the system default.
 
 It is worth pointing out that the `border-color` QSS property is not mapped anywhere, making
 the use of it to define the colour of lines or custom borders in custom widgets very difficult,
 if not impossible.
+
+It is also worth pointing out that this derivation of colours and setting them on a widget's
+palette only seems to occur as part of the painting process - requesting a widget's palette
+outside of a `paintEvent()` call (or the "Application Palette" at any time) results in a palette
+populated only with the default system colours.
 
 @see https://github.com/qt/qtbase/blob/dev/src/gui/text/qcssparser.cpp
      ValueExtractor::extractPalette [~L1343]
