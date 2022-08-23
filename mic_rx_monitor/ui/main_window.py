@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import (
     QMenuBar,
 )
 
-from mic_rx_monitor import __name__ as APP_NAME
+from mic_rx_monitor import __app_name__
 from mic_rx_monitor.i18n import translate
 
 from .menus.about_menu import AboutMenu
@@ -59,7 +59,7 @@ class MainWindow(QMainWindow):
             translate("mic_rx_monitor", "Removed receiver at {addr}").format(addr=addr))
 
     def retranslateUi(self):
-        self.setWindowTitle(APP_NAME)
+        self.setWindowTitle(__app_name__)
 
         # Menus
         self.menu_file.retranslateUi()

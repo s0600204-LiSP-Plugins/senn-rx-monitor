@@ -13,13 +13,13 @@ import qdarkstyle
 # This is so we don't have to `try [...] except ImportError` code vendored from LiSP
 sys.path.insert(1, path.join(path.dirname(__file__), '_vendor'))
 
-from . import __name__ as APP_NAME
+from . import __app_name__
 from .application import Application
 
 def main():
     # Create the QApplication
     qt_app = QApplication(sys.argv)
-    qt_app.setApplicationName(APP_NAME)
+    qt_app.setApplicationName(__app_name__)
     qt_app.setQuitOnLastWindowClosed(True)
 
     qt_app.setStyleSheet(qdarkstyle.load_stylesheet(qt_api='pyqt5'))
