@@ -37,7 +37,9 @@ class FileMenu(ApplicationMenu):
         confirmation_dialog = QMessageBox(
             QMessageBox.Warning,
             translate("mic_rx_monitor", "Confirm reset"),
-            translate("mic_rx_monitor", "This will remove all receivers. This cannot be undone.\n\nContinue?"),
+            translate(
+                "mic_rx_monitor",
+                "This will remove all receivers. This cannot be undone.\n\nContinue?"),
             QMessageBox.Yes | QMessageBox.No,
             parent=self)
         confirmation_dialog.accepted.connect(reset)

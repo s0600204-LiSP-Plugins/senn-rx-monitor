@@ -24,12 +24,16 @@ class EditMenu(ApplicationMenu):
     def retranslateUi(self):
         self.setTitle(translate("MainWindow", "&Edit"))
 
-        self._actions['addManually'].setText(translate("mic_rx_monitor", "Add Receiver"))
+        self._actions['addManually'].setText(
+            translate("mic_rx_monitor", "Add Receiver"))
         self._actions['addManually'].setStatusTip(
             translate("mic_rx_monitor", "Manually add a receiver by IP"))
         self._actions['addManually'].setShortcut(QKeySequence.New)
 
-        self._actions['discoverMCP'].setText(translate("mic_rx_monitor", "Discover MCP Receivers"))
+        self._actions['discoverMCP'].setText(
+            translate("mic_rx_monitor", "Discover MCP Receivers"))
         self._actions['discoverMCP'].setStatusTip(
-            translate("mic_rx_monitor", "Discover receivers available via Sennheiser's 'Media Control Protocol'"))
+            translate(
+                "mic_rx_monitor",
+                "Discover receivers available via Sennheiser's 'Media Control Protocol'"))
         self._actions['discoverMCP'].setShortcut("CTRL+SHIFT+R")
