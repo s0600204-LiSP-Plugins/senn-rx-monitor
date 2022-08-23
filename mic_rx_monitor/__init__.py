@@ -9,12 +9,39 @@ _app_dirs = AppDirs(
     "MicRxMonitor"
 )
 
+# Not SemVer! (unfortunately)
 def _split_vers(vers):
     vers = vers.split(".")
-    for idx in range(3):
+
+    # Major.Minor.*
+    #   0.1.*
+    #   1.0.*
+    for idx in range(2):
         vers[idx] = int(vers[idx])
+
+    # *.Patch[prerelease].*
+    #   *.1
+    #   *.1.*
+    #   *.1a0
+    #   *.1c2.*
+    patch_vers = vers[2]
+    if patch_vers.isnumeric():
+        vers[2] = int(patch_vers)
+    else:
+        for char in patch_vers:
+            if char.isnumeric():
+                continue
+            idx = patch_vers.index(char)
+            vers[2:3] = int(patch_vers[0:idx]), patch_vers[idx:]
+            break
+
+    # *.?
+    #   *.dev0+gAbCdEfGh
+    #   *.d20220104
+    #   *.dev14+gAbCdEfGh.d20220104
     for idx in range(3, len(vers)):
         vers[idx:idx+1] = vers[idx].split("+")
+
     return tuple(vers)
 
 
