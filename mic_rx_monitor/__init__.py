@@ -1,5 +1,5 @@
 
-from importlib.metadata import version
+from importlib.metadata import PackageNotFoundError, version
 from os import path
 
 from appdirs import AppDirs
@@ -49,5 +49,9 @@ __app_name__ = "Sennheiser RX Monitor"
 __author__ = "s0600204"
 __doc__ = "Monitoring of Sennheiser Radio Microphone Receivers"
 __config_file__ = path.join(_app_dirs.user_config_dir, "config.yaml")
-__version__ = version(path.split(path.dirname(__file__))[-1])
-__version_info__ = _split_vers(__version__)
+
+try:
+    __version__ = version(path.split(path.dirname(__file__))[-1])
+    __version_info__ = _split_vers(__version__)
+except PackageNotFoundError:
+    pass
