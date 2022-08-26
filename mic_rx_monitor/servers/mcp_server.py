@@ -126,19 +126,6 @@ class _Server(UDPServer):
             if error.errno not in [101, 10051]:
                 raise error
 
-class SennheiserMCPWorkerSignals:
-    # pylint: disable=too-few-public-methods
-
-    lost_connection = Signal()
-    updated_af_level = Signal() # int, int (level, peak)
-    updated_battery_status = Signal() # str
-    updated_config_num = Signal() # str
-    updated_frequency = Signal() # str
-    updated_name = Signal() # str
-    updated_rf = Signal() # -
-    updated_rf_levels = Signal() # int, int (level, peak)
-    updated_status = Signal() # array(str, ...)
-    updated_squelch = Signal() # int
 
 class SennheiserMCPWorker:
 
@@ -149,27 +136,38 @@ class SennheiserMCPWorker:
         self._server = server
         self._last_rx = None
 
-        self._signals = SennheiserMCPWorkerSignals()
+        self._signals = {
+            "lost_connection": Signal(),
+            "updated_af_level": Signal(), # int, int (level, peak)
+            "updated_battery_status": Signal(), # str
+            "updated_config_num": Signal(), # str
+            "updated_frequency": Signal(), # str
+            "updated_name": Signal(), # str
+            "updated_rf": Signal(), # -
+            "updated_rf_levels": Signal(), # int, int (level, peak)
+            "updated_status": Signal(), # array(str, ...)
+            "updated_squelch": Signal(), # int
+        }
 
         self._handlers = {
             # Responses to specific commands
-            'Name': lambda args: self._signals.updated_name.emit(' '.join(args)),
-            'Frequency': lambda args: self._signals.updated_frequency.emit(args[0]),
-            'Squelch': lambda args: self._signals.updated_squelch.emit(int(args[0])),
+            'Name': lambda args: self._signals["updated_name"].emit(' '.join(args)),
+            'Frequency': lambda args: self._signals["updated_frequency"].emit(args[0]),
+            'Squelch': lambda args: self._signals["updated_squelch"].emit(int(args[0])),
             #'AfOut',
             #'Equalizer`,
             #'Mute',
 
             # Cyclic Attributes.
             # These are always received in the same order, and are listed in that order.
-            'RF1': lambda args: self._signals.updated_rf_levels.emit(int(args[0]), int(args[1])),
-            'RF2': lambda args: self._signals.updated_rf_levels.emit(int(args[0]), int(args[1])),
+            'RF1': lambda args: self._signals["updated_rf_levels"].emit(int(args[0]), int(args[1])),
+            'RF2': lambda args: self._signals["updated_rf_levels"].emit(int(args[0]), int(args[1])),
             #'States',
-            'RF': lambda _: self._signals.updated_rf.emit(),
-            'AF': lambda args: self._signals.updated_af_level.emit(int(args[0]), int(args[1])),
-            'Bat': lambda args: self._signals.updated_battery_status.emit(args[0]),
-            'Msg': self._signals.updated_status.emit,
-            'Config': lambda args: self._signals.updated_config_num.emit(args[0]),
+            'RF': lambda _: self._signals["updated_rf"].emit(),
+            'AF': lambda args: self._signals["updated_af_level"].emit(int(args[0]), int(args[1])),
+            'Bat': lambda args: self._signals["updated_battery_status"].emit(args[0]),
+            'Msg': self._signals["updated_status"].emit,
+            'Config': lambda args: self._signals["updated_config_num"].emit(args[0]),
         }
 
     @property
@@ -196,7 +194,7 @@ class SennheiserMCPWorker:
         if not self._last_rx or self._last_rx + UPDATE_INTERVAL > time.monotonic():
             return
 
-        self._signals.lost_connection.emit()
+        self._signals["lost_connection"].emit()
         self._last_rx = None
 
     def send_rename_request(self, new_name):
