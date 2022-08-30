@@ -10,7 +10,8 @@ from .ui.main_window import MainWindow
 
 class Application:
 
-    def __init__(self):
+    def __init__(self, qt_app):
+        self._qt_app = qt_app
         self._monitor_core = MicMonitorCore()
         self._mainwindow = MainWindow(self)
 
@@ -25,6 +26,13 @@ class Application:
 
     def start(self):
         self._mainwindow.show()
+
+        # Reposition in middle of screen
+        screen_geometry = self._qt_app.primaryScreen().geometry()
+        window_geometry = self._mainwindow.frameGeometry()
+        self._mainwindow.move(
+            int((screen_geometry.width() - window_geometry.width()) / 2 + screen_geometry.x()),
+            int((screen_geometry.height() - window_geometry.height()) / 2 + screen_geometry.y()))
 
     def load_config(self):
         self._config = load_config_file()

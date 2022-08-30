@@ -38,7 +38,7 @@ def main():
     signal.signal(signal.SIGINT, handle_quit_signal)
 
     # Initialize the application
-    rx_app = Application()
+    rx_app = Application(qt_app)
 
     # Run the application
     QTimer.singleShot(0, rx_app.start)
