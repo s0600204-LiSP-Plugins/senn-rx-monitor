@@ -23,9 +23,13 @@
 # pylint: disable=no-name-in-module
 from PyQt5.QtGui import QLinearGradient, QColor, QPainter, QPixmap
 
-from pyqt5_digitalmeter import DBMeter
+from pyqt5_digitalmeter import DigitalMeter
+from pyqt5_digitalmeter.scales import LinearScale
 
-class AFMeter(DBMeter):
+class AFScale(LinearScale):
+    min = -50
+
+class AFMeter(DigitalMeter):
     # pylint: disable=attribute-defined-outside-init
     '''
     AF Meter of the Sennheiser EM 300/500 G3/G4 and EM 2000 receivers.
@@ -40,81 +44,77 @@ class AFMeter(DBMeter):
     interpreted lookup/mapping table below.
     '''
 
-    peak_map = [
-        [ 5, -50],
-        [10, -40],
-        [15, -30],
-        [25, -20],
-        [45, -10],
-        [95,   0],
+    # [input, output, scale_factor]
+    # where scale_factor = (output_max - output_min) / (input_max - input_min)
+    value_map = [
+        [ 5, -50, 0],
+        [10, -40, 2],   # (-40 - -50) / (10 -  5)
+        [15, -30, 2],   # (-30 - -40) / (15 - 10)
+        [25, -20, 1],   # (-20 - -30) / (25 - 15)
+        [45, -10, 0.5], # (-10 - -20) / (45 - 25)
+        [95,   0, 0.2], # (  0 - -10) / (95 - 45)
     ]
 
     def __init__(self, parent=None):
-        super().__init__(parent, dBMin=-50, smoothing=0, unit='dB')
-        self.peak_map_keys = [v[0] for v in self.peak_map]
+        super().__init__(parent,
+                         scale=AFScale(),
+                         smoothing=0,
+                         unit='dB')
 
     # pylint: disable=arguments-differ
     def plot(self, peaks, decays):
-        self.clipping = {}
-        new_peaks = [self.remap_peak(peak) for peak in peaks]
-        new_decays = [self.remap_peak(decay) for decay in decays]
-        super().plot(new_peaks, None, new_decays)
+        super().plot(
+            [self.rescale(value) for value in peaks],
+            None,
+            [self.rescale(value) for value in decays])
 
-    def remap_peak(self, peak):
-        if peak in self.peak_map_keys:
-            return self.peak_map[self.peak_map_keys.index(peak)][1]
+    def rescale(self, value):
+        for value_map in self.value_map:
+            if value < value_map[0]:
+                #        output_min + (input - input_min) * scale_factor
+                return value_map[1] + (value - value_map[0]) * value_map[2]
+            if value == value_map[0]:
+                return value_map[1]
+        return self.scale.max
 
-        bounds = [self.peak_map_keys[0], self.peak_map_keys[-1]]
-        for interval in self.peak_map_keys:
-            if bounds[0] < interval < bounds[1]:
-                if interval < peak:
-                    bounds[0] = interval
-                elif interval > peak:
-                    bounds[1] = interval
 
-        coord_a = self.peak_map[self.peak_map_keys.index(bounds[0])]
-        coord_b = self.peak_map[self.peak_map_keys.index(bounds[1])]
-        scale = (coord_b[1] - coord_a[1]) / (coord_b[0] - coord_a[0])
-        return int(coord_a[1] + (peak - coord_a[0]) * scale)
+from PyQt5.QtCore import QPointF, QRect, QRectF, Qt, QPoint
 
-    def reset(self):
-        self.peaks = [self.dBMin]
-        self.decayPeaks = [self.dBMin] # pylint: disable=invalid-name
-        self.clipping = {}
+class RFScale(LinearScale):
+    max = 40
+    min = 0
 
-        self.update()
-
-class RFMeter(DBMeter):
+class RFMeter(DigitalMeter):
     # pylint: disable=attribute-defined-outside-init
 
     def __init__(self, parent=None):
         super().__init__(parent,
-                         dBMin=0,
-                         dBMax=40,
-                         clipping=40,
+                         scale=RFScale(),
                          unit='dBµV')
-        self.scale = lambda db: db / abs(self.dBMin - self.dBMax)
         self.squelch = 1
+        self._plotting_fraction = (self.scale.max - self.scale.min) / 100
 
     # pylint: disable=arguments-differ
     def plot(self, peaks, decays):
-        scale = (self.dBMax - self.dBMin) / 100
-        new_peaks = [self.dBMin + peak * scale for peak in peaks]
-        new_decays = [self.dBMin + decay * scale for decay in decays]
-        super().plot(new_peaks, None, new_decays)
-        self.clipping = {}
+        super().plot(
+            [self.rescale(value) for value in peaks],
+            None,
+            [self.rescale(value) for value in decays])
+
+    def rescale(self, value):
+        """The device returns a value between 0-100, but we need it between 0 and 40."""
+        return self.scale.min + value * self._plotting_fraction
 
     def setSquelch(self, squelch): # pylint: disable=invalid-name
+        """Valid values for squelch: 0, 5-25 (in steps of 2)"""
         self.squelch = squelch
-        self.updatePixmap()
+        self.updateMeterPixmap()
 
-    def updatePixmap(self): # pylint: disable=invalid-name
+    def updateMeterPixmap(self): # pylint: disable=invalid-name
         """Prepare the colored rect to be used during paintEvent(s)"""
-        width = self.width()
-        height = self.height()
-
-        db_range = abs(self.dBMin - self.dBMax)
-        squelch = 1 - self.squelch / db_range
+        width = self.metersWidth()
+        height = self.metersHeight()
+        squelch = self.scale.scale(self.scale.max - self.squelch)
 
         gradient = QLinearGradient(0, 0, 0, height)
         gradient.setColorAt(0, QColor(0, 220, 0))
@@ -122,5 +122,7 @@ class RFMeter(DBMeter):
         gradient.setColorAt(min(squelch + 0.01, 1), QColor(255, 220, 0))
         gradient.setColorAt(1, QColor(255, 220, 0))
 
-        self._pixmap = QPixmap(width, height)
-        QPainter(self._pixmap).fillRect(0, 0, width, height, gradient)
+        self._meterPixmap = QPixmap(width, height)
+        QPainter(self._meterPixmap).fillRect(
+            0, 0, width, height, gradient
+        )
