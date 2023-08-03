@@ -5,10 +5,6 @@ The files in this folder are taken/adapted from similarly named files within Lin
 
 Differences to upstream:
 
-* ``lisp.backend.audio_utils``
-
-  - All but the ``iec_scale()`` function removed
-
 * ``lisp.core.clock``
 
   - Does not define any instances of the class
@@ -17,11 +13,3 @@ Differences to upstream:
 
   - Has ``async_function`` from ``lisp.core.decorators`` merged
   - Has ``weak_call_proxy`` from ``lisp.core.util`` merged
-
-* ``lisp.ui.widgets.__init__``
-
-  - Reduced to only include the class we vendor
-
-* ``lisp.ui.widgets.dbmeter``
-
-  - Altered to use the palette that Qt5 derives from a theme's stylesheet

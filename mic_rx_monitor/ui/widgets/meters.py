@@ -23,7 +23,7 @@
 # pylint: disable=no-name-in-module
 from PyQt5.QtGui import QLinearGradient, QColor, QPainter, QPixmap
 
-from lisp.ui.widgets import DBMeter
+from pyqt5_digitalmeter import DBMeter
 
 class AFMeter(DBMeter):
     # pylint: disable=attribute-defined-outside-init
