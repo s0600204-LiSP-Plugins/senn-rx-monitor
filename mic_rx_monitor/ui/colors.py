@@ -82,7 +82,7 @@ class Colors:
 
     @classmethod
     def background(cls, widget_instance):
-        return widget_instance.palette().window().color()
+        return widget_instance.palette().window().color().darker(113)
 
     @classmethod
     def fill(cls, widget_instance):
