@@ -45,15 +45,22 @@ class AFMeter(DigitalMeter):
     '''
 
     # [input, output, scale_factor]
-    # where scale_factor = (output_max - output_min) / (input_max - input_min)
     value_map = [
         [ 5, -50, 0],
-        [10, -40, 2],   # (-40 - -50) / (10 -  5)
-        [15, -30, 2],   # (-30 - -40) / (15 - 10)
-        [25, -20, 1],   # (-20 - -30) / (25 - 15)
-        [45, -10, 0.5], # (-10 - -20) / (45 - 25)
-        [95,   0, 0.2], # (  0 - -10) / (95 - 45)
+        [10, -40, 0],
+        [15, -30, 0],
+        [25, -20, 0],
+        [45, -10, 0],
+        [85,   0, 0],
     ]
+
+    # Calculate scale_factors
+    _pmap = value_map[0]
+    for _vmap in value_map[1:]:
+        _vmap[2] = (_vmap[1] - _pmap[1]) / (_vmap[0] - _pmap[0])
+        _pmap = _vmap
+    del _vmap
+    del _pmap
 
     def __init__(self, parent=None):
         super().__init__(parent,
