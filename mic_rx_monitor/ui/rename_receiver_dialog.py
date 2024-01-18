@@ -20,9 +20,8 @@
 # You should have received a copy of the GNU General Public License
 # along with Linux Show Player.  If not, see <http://www.gnu.org/licenses/>.
 
-# pylint: disable=no-name-in-module
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QDialog, QDialogButtonBox, QFormLayout, QLabel, QLineEdit
+from qtpy.QtCore import Qt
+from qtpy.QtWidgets import QDialog, QDialogButtonBox, QFormLayout, QLabel, QLineEdit
 
 try:
     from lisp.ui.ui_utils import translate

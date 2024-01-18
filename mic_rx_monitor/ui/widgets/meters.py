@@ -20,8 +20,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Linux Show Player.  If not, see <http://www.gnu.org/licenses/>.
 
-# pylint: disable=no-name-in-module
-from PyQt5.QtGui import QLinearGradient, QColor, QPainter, QPixmap
+from qtpy.QtGui import QLinearGradient, QColor, QPainter, QPixmap
 
 from pyqt5_digitalmeter import DigitalMeter
 from pyqt5_digitalmeter.scales import LinearScale
@@ -85,7 +84,7 @@ class AFMeter(DigitalMeter):
         return self.scale.max
 
 
-from PyQt5.QtCore import QPointF, QRect, QRectF, Qt, QPoint
+from qtpy.QtCore import QPointF, QRect, QRectF, Qt, QPoint
 
 class RFScale(LinearScale):
     max = 40

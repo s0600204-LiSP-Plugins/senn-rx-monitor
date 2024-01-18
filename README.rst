@@ -60,9 +60,9 @@ As a Standalone Application
 
 `appdirs`_
 
-`PyQt5`_
-
 `QDarkStyle`_
+
+`qtpy`_
 
 `StrictYAML`_
 
@@ -97,6 +97,6 @@ To run: call ``senn-rx-monitor`` from the command line.
 .. _Linux Show Player: https://github.com/FrancescoCeruti/linux-show-player
 .. _netifaces: https://github.com/al45tair/netifaces
 .. _PyPI: https://pypi.org/
-.. _PyQt5: https://www.riverbankcomputing.com/software/pyqt/
 .. _QDarkStyle: https://github.com/ColinDuquesnoy/QDarkStyleSheet/
+.. _qtpy: https://github.com/spyder-ide/qtpy
 .. _StrictYAML: https://hitchdev.com/strictyaml/

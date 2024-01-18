@@ -20,10 +20,9 @@
 # You should have received a copy of the GNU General Public License
 # along with Linux Show Player.  If not, see <http://www.gnu.org/licenses/>.
 
-# pylint: disable=no-name-in-module
-from PyQt5.QtCore import QRectF
-from PyQt5.QtGui import QPainter, QPainterPath
-from PyQt5.QtWidgets import QWidget
+from qtpy.QtCore import QRectF
+from qtpy.QtGui import QPainter, QPainterPath
+from qtpy.QtWidgets import QWidget
 
 from ..colors import Colors
 

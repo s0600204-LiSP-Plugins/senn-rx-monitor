@@ -30,9 +30,8 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-# pylint: disable=no-name-in-module
-from PyQt5.QtCore import QPoint, QRect, QSize, Qt
-from PyQt5.QtWidgets import QLayout, QLayoutItem, QSizePolicy, QStyle
+from qtpy.QtCore import QPoint, QRect, QSize, Qt
+from qtpy.QtWidgets import QLayout, QLayoutItem, QSizePolicy, QStyle
 
 class QFlowLayout(QLayout):
     # pylint: disable=invalid-name
