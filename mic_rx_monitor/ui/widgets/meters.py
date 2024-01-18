@@ -22,8 +22,8 @@
 
 from qtpy.QtGui import QLinearGradient, QColor, QPainter, QPixmap
 
-from pyqt5_digitalmeter import DigitalMeter
-from pyqt5_digitalmeter.scales import LinearScale
+from qt_digitalmeter import DigitalMeter
+from qt_digitalmeter.scales import LinearScale
 
 class AFScale(LinearScale):
     min = -50

@@ -49,6 +49,10 @@ Dependencies
 
   And yes I'm aware that, as of May/June 2021, it's no longer maintained.
 
+`qt_digitalmeter`_
+  This is not currently available via from PyPI_ or from a distro's package repository, but
+  hopefully will soon.
+
 As a Plugin
 """""""""""
 
@@ -98,5 +102,6 @@ To run: call ``senn-rx-monitor`` from the command line.
 .. _netifaces: https://github.com/al45tair/netifaces
 .. _PyPI: https://pypi.org/
 .. _QDarkStyle: https://github.com/ColinDuquesnoy/QDarkStyleSheet/
+.. _qt_digitalmeter: https://github.com/s0600204/qt_digitalmeter
 .. _qtpy: https://github.com/spyder-ide/qtpy
 .. _StrictYAML: https://hitchdev.com/strictyaml/
