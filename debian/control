@@ -1,0 +1,40 @@
+Source: senn-rx-monitor
+Section: python
+Priority: optional
+Maintainer: s0600204 <dev@s0600204>
+Rules-Requires-Root: no
+Build-Depends:
+ debhelper-compat (= 13),
+ pybuild-plugin-pyproject,
+ python3-all,
+ python3-appdirs,
+ python3-netifaces,
+ python3-pyqtdarktheme,
+ python3-qt-digitalmeter,
+ python3-qtpy,
+ python3-setuptools,
+ python3-strictyaml
+Standards-Version: 4.6.2
+Homepage: https://github.com/s0600204-lisp-plugins/senn-rx-monitor.git
+
+Package: senn-rx-monitor
+Architecture: all
+Depends:
+ ${misc:Depends},
+ ${python3:Depends}
+Description: Sennheiser Rx Monitor
+ Discovers and displays Sennheiser-branded radio microphones,
+ permitting the monitoring of their status across an Ethernet network.
+
+Package: linux-show-player-senn-rx-monitor
+Architecture: all
+Depends:
+ ${misc:Depends},
+ ${python3:Depends}
+Provides: linux-show-player-layout
+Description: Sennheiser Rx Monitor (plugin)
+ Provides the functionality of Sennheiser Rx Monitor as a plugin for
+ Linux Show Player.
+ .
+ This can be used from either a non-modal dialog (opened from the Tools menu),
+ or via the "Radio Mic Layout".

@@ -1,0 +1,3 @@
+__init__.py usr/lib/python3/dist-packages/lisp/plugins/senn_rx_monitor
+mic_rx_monitor usr/lib/python3/dist-packages/lisp/plugins/senn_rx_monitor
+senn_rx_monitor.py usr/lib/python3/dist-packages/lisp/plugins/senn_rx_monitor
