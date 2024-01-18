@@ -1,6 +1,6 @@
 
-from PyQt5.QtGui import QKeySequence
-from PyQt5.QtWidgets import QAction
+from qtpy.QtGui import QKeySequence
+from qtpy.QtWidgets import QAction
 
 from mic_rx_monitor.i18n import translate
 from .menu import ApplicationMenu

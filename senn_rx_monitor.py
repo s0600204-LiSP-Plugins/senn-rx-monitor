@@ -26,8 +26,7 @@ This file is used only by the LiSP Plugin.
 
 import logging
 
-# pylint: disable=no-name-in-module
-from PyQt5.QtWidgets import QAction
+from qtpy.QtWidgets import QAction
 
 # pylint: disable=import-error
 from lisp.core.has_properties import Property

@@ -1,12 +1,14 @@
 [MAIN]
 extension-pkg-allow-list=
     netifaces,
+
+    # qtpy
     PyQt5.QtCore,
     PyQt5.QtGui,
     PyQt5.QtWidgets,
 
 good-names=
-    # PyQt5
+    # qtpy
     contextMenuEvent,
     dragEnterEvent,
     dragMoveEvent,

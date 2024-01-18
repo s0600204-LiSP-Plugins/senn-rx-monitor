@@ -24,9 +24,8 @@
 This file is used only by the LiSP Plugin.
 '''
 
-# pylint: disable=no-name-in-module
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QDialog, QDialogButtonBox, QPushButton, QSizePolicy, QVBoxLayout
+from qtpy.QtCore import Qt
+from qtpy.QtWidgets import QDialog, QDialogButtonBox, QPushButton, QSizePolicy, QVBoxLayout
 
 from lisp.plugins import get_plugin
 from lisp.ui.icons import IconTheme

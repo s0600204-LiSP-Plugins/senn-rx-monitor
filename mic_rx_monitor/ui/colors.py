@@ -1,7 +1,7 @@
 
 import enum
 
-from PyQt5.QtGui import QColor
+from qtpy.QtGui import QColor
 
 """
 If a Theme does not explicitly set palette colours, Qt5 derives suitable colours from the

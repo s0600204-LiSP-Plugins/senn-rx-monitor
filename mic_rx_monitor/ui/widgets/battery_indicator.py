@@ -22,10 +22,9 @@
 
 import copy
 
-# pylint: disable=no-name-in-module
-from PyQt5.QtCore import Qt, QRect
-from PyQt5.QtGui import QPainter, QPainterPath
-from PyQt5.QtWidgets import QWidget
+from qtpy.QtCore import Qt, QRect
+from qtpy.QtGui import QPainter, QPainterPath
+from qtpy.QtWidgets import QWidget
 
 try:
     from lisp.ui.ui_utils import translate

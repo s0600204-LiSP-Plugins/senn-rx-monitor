@@ -23,8 +23,8 @@ from enum import Enum
 from threading import RLock
 from types import MethodType, BuiltinMethodType
 
-from PyQt5.QtCore import QEvent, QObject
-from PyQt5.QtWidgets import QApplication
+from qtpy.QtCore import QEvent, QObject
+from qtpy.QtWidgets import QApplication
 
 __all__ = ["Signal", "Connection"]
 

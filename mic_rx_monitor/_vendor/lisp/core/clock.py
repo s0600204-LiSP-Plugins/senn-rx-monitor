@@ -17,7 +17,7 @@
 
 from threading import Lock
 
-from PyQt5.QtCore import QTimer
+from qtpy.QtCore import QTimer
 
 
 class Clock(QTimer):
