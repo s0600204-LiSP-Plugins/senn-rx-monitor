@@ -20,13 +20,20 @@
 # You should have received a copy of the GNU General Public License
 # along with Linux Show Player.  If not, see <http://www.gnu.org/licenses/>.
 
-from qtpy.QtGui import QLinearGradient, QColor, QPainter, QPixmap
+from qtpy.QtGui import (
+    QColor,
+    QLinearGradient,
+    QPainter,
+    QPixmap,
+)
 
 from qt_digitalmeter import DigitalMeter
 from qt_digitalmeter.scales import LinearScale
 
+
 class AFScale(LinearScale):
     min = -50
+
 
 class AFMeter(DigitalMeter):
     # pylint: disable=attribute-defined-outside-init
@@ -84,11 +91,10 @@ class AFMeter(DigitalMeter):
         return self.scale.max
 
 
-from qtpy.QtCore import QPointF, QRect, QRectF, Qt, QPoint
-
 class RFScale(LinearScale):
     max = 40
     min = 0
+
 
 class RFMeter(DigitalMeter):
     # pylint: disable=attribute-defined-outside-init
