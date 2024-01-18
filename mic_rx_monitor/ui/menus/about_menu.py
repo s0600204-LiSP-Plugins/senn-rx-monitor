@@ -1,7 +1,7 @@
 
 from qtpy.QtWidgets import (
     QAction,
-    qApp,
+    QApplication,
 )
 
 from mic_rx_monitor.i18n import translate
@@ -14,7 +14,7 @@ class AboutMenu(ApplicationMenu):
         super().__init__(*args, **kwargs)
 
         self._actions['aboutQt'] = QAction(self)
-        self._actions['aboutQt'].triggered.connect(qApp.aboutQt)
+        self._actions['aboutQt'].triggered.connect(QApplication.aboutQt)
         self.addAction(self._actions['aboutQt'])
 
     def retranslateUi(self):
