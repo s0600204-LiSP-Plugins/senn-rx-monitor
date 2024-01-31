@@ -1,5 +1,5 @@
 Source: senn-rx-monitor
-Section: python
+Section: sound
 Priority: optional
 Maintainer: s0600204 <dev@s0600204>
 Rules-Requires-Root: no
@@ -30,7 +30,8 @@ Package: linux-show-player-senn-rx-monitor
 Architecture: all
 Depends:
  ${misc:Depends},
- ${python3:Depends}
+ ${python3:Depends},
+ python3-netifaces
 Provides: linux-show-player-layout
 Description: Sennheiser Rx Monitor (plugin)
  Provides the functionality of Sennheiser Rx Monitor as a plugin for
