@@ -1,3 +1,9 @@
+senn-rx-monitor (0.3.0-1) UNRELEASED; urgency=medium
+
+  * "Install" the application icon where the application can find it
+
+ -- s0600204 <dev@s0600204>  Wed, 31 Jan 2024 21:49:00 +0000
+
 senn-rx-monitor (0.3.0) UNRELEASED; urgency=medium
 
   * Initial packaging.
