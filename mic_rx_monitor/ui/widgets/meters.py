@@ -27,15 +27,15 @@ from qtpy.QtGui import (
     QPixmap,
 )
 
-from qt_digitalmeter import DigitalMeter
-from qt_digitalmeter.scales import LinearScale
+from qdigitalmeter import QDigitalMeter
+from qdigitalmeter.scales import LinearScale
 
 
 class AFScale(LinearScale):
     min = -50
 
 
-class AFMeter(DigitalMeter):
+class AFMeter(QDigitalMeter):
     # pylint: disable=attribute-defined-outside-init
     '''
     AF Meter of the Sennheiser EM 300/500 G3/G4 and EM 2000 receivers.
@@ -78,7 +78,6 @@ class AFMeter(DigitalMeter):
     def plot(self, peaks, decays):
         super().plot(
             [self.rescale(value) for value in peaks],
-            None,
             [self.rescale(value) for value in decays])
 
     def rescale(self, value):
@@ -96,7 +95,7 @@ class RFScale(LinearScale):
     min = 0
 
 
-class RFMeter(DigitalMeter):
+class RFMeter(QDigitalMeter):
     # pylint: disable=attribute-defined-outside-init
 
     def __init__(self, parent=None):
@@ -110,7 +109,6 @@ class RFMeter(DigitalMeter):
     def plot(self, peaks, decays):
         super().plot(
             [self.rescale(value) for value in peaks],
-            None,
             [self.rescale(value) for value in decays])
 
     def rescale(self, value):
