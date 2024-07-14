@@ -31,10 +31,6 @@ from qdigitalmeter import QDigitalMeter
 from qdigitalmeter.scales import LinearScale
 
 
-class AFScale(LinearScale):
-    min = -50
-
-
 class AFMeter(QDigitalMeter):
     # pylint: disable=attribute-defined-outside-init
     '''
@@ -70,7 +66,7 @@ class AFMeter(QDigitalMeter):
 
     def __init__(self, parent=None):
         super().__init__(parent,
-                         scale=AFScale(),
+                         scale=LinearScale(max_value=0, min_value=-50),
                          smoothing=0,
                          unit='dB')
 
@@ -90,17 +86,12 @@ class AFMeter(QDigitalMeter):
         return self.scale.max
 
 
-class RFScale(LinearScale):
-    max = 40
-    min = 0
-
-
 class RFMeter(QDigitalMeter):
     # pylint: disable=attribute-defined-outside-init
 
     def __init__(self, parent=None):
         super().__init__(parent,
-                         scale=RFScale(),
+                         scale=LinearScale(max_value=40, min_value=0),
                          unit='dBµV')
         self.squelch = 1
         self._plotting_fraction = (self.scale.max - self.scale.min) / 100
