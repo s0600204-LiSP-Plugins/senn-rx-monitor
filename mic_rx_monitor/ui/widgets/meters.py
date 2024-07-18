@@ -20,6 +20,8 @@
 # You should have received a copy of the GNU General Public License
 # along with Linux Show Player.  If not, see <http://www.gnu.org/licenses/>.
 
+from dataclasses import dataclass
+
 from qtpy.QtGui import (
     QColor,
     QLinearGradient,
@@ -31,8 +33,9 @@ from qdigitalmeter import QDigitalMeter
 from qdigitalmeter.scales import LinearScale
 
 
+@dataclass
 class AFScale(LinearScale):
-    min = -50
+    min: int = -50
 
 
 class AFMeter(QDigitalMeter):
@@ -90,9 +93,10 @@ class AFMeter(QDigitalMeter):
         return self.scale.max
 
 
+@dataclass
 class RFScale(LinearScale):
-    max = 40
-    min = 0
+    max: int = 40
+    min: int = 0
 
 
 class RFMeter(QDigitalMeter):
