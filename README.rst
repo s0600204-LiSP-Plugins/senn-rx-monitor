@@ -26,29 +26,49 @@ The following receivers are supported:
 
 .. Note:: Firmware on these devices must be at least ``1.7.0``
 
-The following receivers are not:
+The following receivers use a different protocol, and are not supported (at present):
+
+* *EM 6000*
+* *EM 6000 Dante*
+* *EM 9046*
+* *EM D1*
+* *EW-DX EM 2*
+* *EW-DX EM 2 Dante*
+* *EW-DX EM 4 Dante*
+* *SpeechLine DW*
+* *SpeechLine MCR 2*
+* *SpeechLine MCR 4*
+
+The following receivers are not monitorable over an ethernet connection, but are over bluetooth:
+
+* *EW-D EM*
+
+Support might be possible, but requires research (and a bluetooth device).
+
+The following receivers are not remote-monitorable, and thus will never be supported:
 
 * Any from the *EM G2* range
 * *EM 100 G3*
 * *EM 100 G4*
 * *EM 3731*
 * *EM 3732*
-* *EM 6000*
-* *EM 6000 Dante*
-* *EM 9046*
-* *EM D1*
-* *EW-D EM*
-* Receivers from other manufacturers (e.g. *Shure*, *Trantec*)
+* *EW-DP EK*
+* *EM-XSW 1*
+* *EM-XSW 1 Dual*
+* *EM-XSW 2*
+* *XSW-D*
+
+And, of course, receivers from other manufacturers (e.g. *Shure*, *Trantec*) are also not supported.
 
 
 Dependencies
 ------------
 
 `ifaddr`_
-  May be acquired from PyPI_ if not available from your distro's package repository.
 
 `QDigitalMeter`_
-  Available from PyPI_.
+
+Both these may be acquired from PyPI_ if not available from your distro's package repository.
 
 As a Plugin
 """""""""""
