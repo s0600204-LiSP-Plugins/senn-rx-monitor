@@ -47,9 +47,8 @@ Dependencies
 `ifaddr`_
   May be acquired from PyPI_ if not available from your distro's package repository.
 
-`qt_digitalmeter`_
-  This is not currently available via from PyPI_ or from a distro's package repository, but
-  hopefully will soon.
+`QDigitalMeter`_
+  Available from PyPI_.
 
 As a Plugin
 """""""""""
@@ -100,6 +99,6 @@ To run: call ``senn-rx-monitor`` from the command line.
 .. _Linux Show Player: https://github.com/FrancescoCeruti/linux-show-player
 .. _PyPI: https://pypi.org/
 .. _QDarkStyle: https://github.com/ColinDuquesnoy/QDarkStyleSheet/
-.. _qt_digitalmeter: https://github.com/s0600204/qt_digitalmeter
+.. _QDigitalMeter: https://pypi.org/project/qdigitalmeter/
 .. _qtpy: https://github.com/spyder-ide/qtpy
 .. _StrictYAML: https://hitchdev.com/strictyaml/
