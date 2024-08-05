@@ -1,7 +1,5 @@
 [MAIN]
 extension-pkg-allow-list=
-    netifaces,
-
     # qtpy
     PyQt5.QtCore,
     PyQt5.QtGui,

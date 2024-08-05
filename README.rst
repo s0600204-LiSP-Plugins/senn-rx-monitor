@@ -44,10 +44,8 @@ The following receivers are not:
 Dependencies
 ------------
 
-`netifaces`_
-  A python module that can be acquired from your distro's package repository, or from PyPI_.
-
-  And yes I'm aware that, as of May/June 2021, it's no longer maintained.
+`ifaddr`_
+  May be acquired from PyPI_ if not available from your distro's package repository.
 
 `qt_digitalmeter`_
   This is not currently available via from PyPI_ or from a distro's package repository, but
@@ -98,8 +96,8 @@ To run: call ``senn-rx-monitor`` from the command line.
 
 
 .. _appdirs: https://github.com/ActiveState/appdirs
+.. _ifaddr: https://github.com/ifaddr/ifaddr
 .. _Linux Show Player: https://github.com/FrancescoCeruti/linux-show-player
-.. _netifaces: https://github.com/al45tair/netifaces
 .. _PyPI: https://pypi.org/
 .. _QDarkStyle: https://github.com/ColinDuquesnoy/QDarkStyleSheet/
 .. _qt_digitalmeter: https://github.com/s0600204/qt_digitalmeter

@@ -25,7 +25,7 @@ import socket
 from socketserver import BaseRequestHandler, UDPServer
 from threading import Thread
 
-import netifaces as ni
+import ifaddr
 
 from lisp.core.signal import Signal
 
@@ -141,14 +141,10 @@ class _Server(UDPServer):
         self.discovered.emit(addr)
 
     def discover(self):
-        for iface in ni.interfaces():
-            try:
-                for addr in ni.ifaddresses(iface)[ni.AF_INET]:
-                    if addr['addr'] == '127.0.0.1':
-                        continue
-                    with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
-                        sock.bind((addr['addr'], PORT + 1))
-                        sock.sendto(DISCOVERY_MSG, (MCAST_IP, PORT))
-
-            except KeyError:
-                continue
+        for adapter in ifaddr.get_adapters():
+            for addr in adapter.ips:
+                if not addr.is_IPv4 or addr.ip == '127.0.0.1':
+                    continue
+                with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
+                    sock.bind((addr.ip, PORT + 1))
+                    sock.sendto(DISCOVERY_MSG, (MCAST_IP, PORT))
