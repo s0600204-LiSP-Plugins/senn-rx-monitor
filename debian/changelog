@@ -1,3 +1,10 @@
+senn-rx-monitor (0.4.0) UNRELEASED; urgency=medium
+
+  * Switch to QDigitalMeter widget
+  * Replace discontinued `netifaces` with `ifaddr`
+
+ -- s0600204 <dev@s0600204>  Sat, 03 Feb 2024 19:40:00 +0000
+
 senn-rx-monitor (0.3.0) UNRELEASED; urgency=medium
 
   * Initial packaging.

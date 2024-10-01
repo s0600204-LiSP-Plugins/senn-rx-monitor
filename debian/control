@@ -8,9 +8,9 @@ Build-Depends:
  pybuild-plugin-pyproject,
  python3-all,
  python3-appdirs,
- python3-netifaces,
+ python3-ifaddr,
  python3-pyqtdarktheme,
- python3-qt-digitalmeter,
+ python3-qdigitalmeter,
  python3-qtpy,
  python3-setuptools,
  python3-strictyaml
@@ -31,7 +31,7 @@ Architecture: all
 Depends:
  ${misc:Depends},
  ${python3:Depends},
- python3-netifaces
+ python3-ifaddr
 Provides: linux-show-player-layout
 Description: Sennheiser Rx Monitor (plugin)
  Provides the functionality of Sennheiser Rx Monitor as a plugin for
