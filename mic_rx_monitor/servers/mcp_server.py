@@ -122,8 +122,9 @@ class _Server(UDPServer):
         except OSError as error:
             # errno 101 == Network unreachable
             # errno 10051 == Socket operation on an unreachable network (Windows only)
+            # errno 10065 == A socket operation was attempted to an unreachable host (Windows only)
             # Anything else: re-throw exception
-            if error.errno not in [101, 10051]:
+            if error.errno not in [101, 10051, 10065]:
                 raise error
 
 
