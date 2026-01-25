@@ -2,10 +2,10 @@
 from importlib.metadata import PackageNotFoundError, version
 from os import path
 
-from appdirs import AppDirs
+from platformdirs import PlatformDirs
 
 
-_app_dirs = AppDirs(
+_app_dirs = PlatformDirs(
     "MicRxMonitor"
 )
 
