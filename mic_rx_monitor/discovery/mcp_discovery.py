@@ -146,5 +146,16 @@ class _Server(UDPServer):
                 if not addr.is_IPv4 or addr.ip == '127.0.0.1':
                     continue
                 with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
-                    sock.bind((addr.ip, PORT + 1))
+                    try:
+                        sock.bind((addr.ip, PORT + 1))
+                    except OSError as error:
+                        if error.errno == 10049 and addr.ip.startswith("169.254."):
+                            # Windows (10) assigns a link-local address to non-connected adapters, despite them not being connected
+                            logger.debug(
+                                "Skipping unbindable address %s on unconnected interface '%s' (aka '%s')",
+                                addr.ip, adapter.nice_name, addr.nice_name
+                            )
+                            continue
+                        raise error
+
                     sock.sendto(DISCOVERY_MSG, (MCAST_IP, PORT))

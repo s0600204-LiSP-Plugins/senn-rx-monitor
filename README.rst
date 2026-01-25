@@ -79,7 +79,7 @@ As a Plugin
 As a Standalone Application
 """""""""""""""""""""""""""
 
-`appdirs`_
+`platformdirs`_
 
 `QDarkStyle`_
 
@@ -114,7 +114,7 @@ privileges if necessary) from its root folder.
 To run: call ``senn-rx-monitor`` from the command line.
 
 
-.. _appdirs: https://github.com/ActiveState/appdirs
+.. _platformdirs: https://github.com/tox-dev/platformdirs
 .. _ifaddr: https://github.com/ifaddr/ifaddr
 .. _Linux Show Player: https://github.com/FrancescoCeruti/linux-show-player
 .. _PyPI: https://pypi.org/

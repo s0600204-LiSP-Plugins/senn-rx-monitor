@@ -35,14 +35,14 @@ from lisp.core.session import Session
 from lisp.layout import register_layout
 from lisp.ui.ui_utils import translate
 
-from senn_rx_monitor.mic_rx_monitor import (
+from .mic_rx_monitor import (
     __app_name__,
     __author__,
     __doc__,
 )
-from senn_rx_monitor.mic_rx_monitor.core import MicMonitorCore
-from senn_rx_monitor.mic_rx_monitor.ui.mic_info_dialog import MicInfoDialog
-from senn_rx_monitor.mic_rx_monitor.ui.mic_info_layout import MicInfoLayout
+from .mic_rx_monitor.core import MicMonitorCore
+from .mic_rx_monitor.ui.mic_info_dialog import MicInfoDialog
+from .mic_rx_monitor.ui.mic_info_layout import MicInfoLayout
 
 logger = logging.getLogger(__name__) # pylint: disable=invalid-name
 
