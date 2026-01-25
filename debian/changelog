@@ -1,3 +1,11 @@
+senn-rx-monitor (0.5.0) UNRELEASED; urgency=medium
+
+  * Replace discontinued `appdirs` with `platformdirs`
+  * Improve handling of discovery on Windows
+  * Fix imports with how user plugins are imported into LiSP
+
+ -- s0600204 <dev@s0600204>  Sun, 25 Jan 2026 19:09:00 +0000
+
 senn-rx-monitor (0.4.0) UNRELEASED; urgency=medium
 
   * Switch to QDigitalMeter widget
